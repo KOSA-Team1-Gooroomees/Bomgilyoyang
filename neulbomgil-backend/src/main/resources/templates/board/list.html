@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>게시판 - 봄길 요양</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+<!-- NAVBAR -->
+<nav>
+<div th:replace="~{fragments/header :: header}"></div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5">
+
+    <!-- SIDEBAR -->
+    <aside class="flex flex-col gap-4">
+        <!-- 배너 -->
+        <div class="bg-primary-light rounded-xl p-5 relative overflow-hidden min-h-[160px]">
+            <p class="text-sm font-bold text-primary-dark mb-2">늘봄길 커뮤니티</p>
+            <p class="text-xs text-gray-600 leading-relaxed">시설 이용 정보와<br/>다양한 소식을<br/>함께 나눠요.</p>
+            <img src="/images/sheep.png" alt="마스코트"
+                 class="absolute bottom-0 right-2 w-20 opacity-85"
+                 onerror="this.style.display='none'"/>
+        </div>
+
+        <!-- 글쓰기 버튼 -->
+        <button sec:authorize="isAnonymous()"
+                onclick="requireLogin()"
+                class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg text-sm cursor-pointer border-0 transition-colors">
+            ✏️ 글쓰기
+        </button>
+        <a sec:authorize="isAuthenticated()"
+           th:href="@{/boards/new}"
+           class="block w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg text-sm text-center no-underline transition-colors">
+            ✏️ 글쓰기
+        </a>
+
+        <!-- 채팅 -->
+        <div class="border border-gray-200 rounded-xl p-4">
+            <p class="text-sm font-bold mb-1.5">도움이 필요하신가요?</p>
+            <p class="text-xs text-gray-500 leading-relaxed mb-3">관리자와 1:1 채팅으로<br/>빠르게 문의해보세요.</p>
+            <button class="w-full py-2 bg-[#a8c5b5] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
+                채팅하기
+            </button>
+        </div>
+    </aside>
+
+    <!-- 메인 -->
+    <main class="flex-1 bg-white rounded-xl p-8 shadow-sm">
+        <!-- 헤더 -->
+        <div class="mb-5">
+            <h2 class="text-xl font-bold">전체 게시글</h2>
+            <p class="text-xs text-gray-500 mt-1">늘봄길 이용자들과 정보를 나누고 소통해보세요.</p>
+        </div>
+
+        <!-- 탭 + 검색 -->
+        <div class="flex justify-between items-center mb-4 gap-3">
+            <div class="flex gap-2">
+                <button class="px-4 py-1.5 rounded-full text-xs border cursor-pointer transition-colors"
+                        th:classappend="${sort == 'recent' or sort == null}
+                  ? 'bg-primary text-white border-primary font-semibold'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-primary-mid'"
+                        onclick="location.href='/boards?page=0'">전체</button>
+                <button class="px-4 py-1.5 rounded-full text-xs border cursor-pointer transition-colors"
+                        th:classappend="${sort == 'cnt'}
+                  ? 'bg-primary text-white border-primary font-semibold'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-primary-mid'"
+                        onclick="location.href='/boards/sort/cnt?page=0'">조회순</button>
+                <button class="px-4 py-1.5 rounded-full text-xs border cursor-pointer transition-colors"
+                        th:classappend="${sort == 'replies'}
+                  ? 'bg-primary text-white border-primary font-semibold'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-primary-mid'"
+                        onclick="location.href='/boards/sort/replies?page=0'">댓글순</button>
+            </div>
+            <form class="flex gap-2 items-center" th:action="@{/boards/search}" method="get">
+                <select name="type"
+                        class="px-2 py-1.5 border border-gray-200 rounded-md text-xs bg-white focus:outline-none focus:border-primary-mid">
+                    <option value="all" selected>제목+내용</option>
+                </select>
+                <input type="text" name="keyword" th:value="${keyword}"
+                       placeholder="검색어를 입력하세요."
+                       class="px-3 py-1.5 border border-gray-200 rounded-md text-xs w-48 focus:outline-none focus:border-primary-mid"/>
+                <button type="submit"
+                        class="px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-md text-sm border-0 cursor-pointer transition-colors">
+                    🔍
+                </button>
+            </form>
+        </div>
+
+        <!-- 테이블 -->
+        <table class="w-full border-collapse">
+            <thead>
+            <tr class="border-t-2 border-primary border-b border-gray-200">
+                <th class="py-3 px-2 text-xs text-gray-500 font-semibold text-center w-16">번호</th>
+                <th class="py-3 px-2 text-xs text-gray-500 font-semibold text-left">제목</th>
+                <th class="py-3 px-2 text-xs text-gray-500 font-semibold text-center w-24">작성자</th>
+                <th class="py-3 px-2 text-xs text-gray-500 font-semibold text-center w-28">작성일</th>
+                <th class="py-3 px-2 text-xs text-gray-500 font-semibold text-center w-16">조회수</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="board : ${boards.content}"
+                th:if="${!boards.content.empty}"
+                class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.boardid}"></td>
+                <td class="py-3.5 px-2 text-sm text-left">
+                    <!-- 로그인 상태: 상세로 이동 -->
+                    <a class="text-gray-700 font-medium no-underline hover:text-primary transition-colors"
+                       sec:authorize="isAuthenticated()"
+                       th:href="@{/boards/{id}(id=${board.boardid})}"
+                       th:text="${board.title}"></a>
+                    <!-- 비로그인: 경고 -->
+                    <a class="text-gray-700 font-medium no-underline hover:text-primary transition-colors cursor-pointer"
+                       sec:authorize="isAnonymous()"
+                       href="#"
+                       th:onclick="|requireLogin()|"
+                       th:text="${board.title}"></a>
+                    <span class="text-primary text-xs font-semibold ml-1"
+                          th:if="${board.replyCount > 0}"
+                          th:text="'[' + ${board.replyCount} + ']'"></span>
+                </td>
+                <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.name}"></td>
+                <td class="py-3.5 px-2 text-xs text-gray-400 text-center"
+                    th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}"></td>
+                <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.cnt}"></td>
+            </tr>
+            <tr th:if="${boards.content.empty}">
+                <td colspan="5" class="py-16 text-center text-sm text-gray-400">등록된 게시글이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <div class="flex justify-center items-center gap-1.5 mt-7" th:if="${boards.totalPages > 0}">
+            <a class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 text-sm no-underline hover:border-primary-mid hover:text-primary transition-colors"
+               th:classappend="${boards.first} ? 'opacity-30 pointer-events-none'"
+               th:href="@{${currentUrl}(page=${boards.number - 1})}">&#8249;</a>
+
+            <th:block th:each="i : ${#numbers.sequence(0, boards.totalPages - 1)}">
+                <a class="w-8 h-8 flex items-center justify-center rounded-full border text-sm no-underline transition-colors"
+                   th:classappend="${i == boards.number}
+             ? 'bg-primary text-white border-primary font-bold'
+             : 'border-gray-200 text-gray-500 hover:border-primary-mid hover:text-primary'"
+                   th:href="@{${currentUrl}(page=${i})}"
+                   th:text="${i + 1}"></a>
+            </th:block>
+
+            <a class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 text-sm no-underline hover:border-primary-mid hover:text-primary transition-colors"
+               th:classappend="${boards.last} ? 'opacity-30 pointer-events-none'"
+               th:href="@{${currentUrl}(page=${boards.number + 1})}">&#8250;</a>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:inline="javascript">
+    const isLoggedIn = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+    function requireLogin() {
+        alert('로그인이 필요한 서비스입니다.');
+        location.href = '/login';
+    }
+</script>
+</body>
+</html>
