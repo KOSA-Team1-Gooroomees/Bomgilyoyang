@@ -7,7 +7,8 @@ let selectedFacilityId = null;
 let isFavoriteState = false;
 
 // 페이징 및 검색 상태 관리
-let keyword = '';
+const urlParams = new URLSearchParams(window.location.search);
+let keyword = urlParams.get('search') || '';
 let lastId = null;
 let lastValue = null;
 let hasNextPage = true;
@@ -21,6 +22,10 @@ const detailSidebarEl = document.getElementById('detailSidebar');
 
 // 문서 로드 완시 초기화
 document.addEventListener("DOMContentLoaded", () => {
+    if (keyword && keywordInputEl) {
+        keywordInputEl.value = keyword;
+    }
+
     if (typeof kakao !== 'undefined' && kakao.maps) {
         initGeolocation();
     } else {
