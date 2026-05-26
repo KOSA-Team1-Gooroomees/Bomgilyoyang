@@ -2,7 +2,7 @@ package com.gooroomees.neulbomgil_backend.domain.auth.controller.view;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.RegisterRequest;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.LoginRequest;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class AuthViewController {
 
     private final AuthService authService;
-    private final UserAuthRepository userAuthRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/login")
     public String loginView(Model model) {
@@ -70,7 +70,7 @@ public class AuthViewController {
         }
 
         // 2. 이메일 중복 검사
-        if (userAuthRepository.findByEmail(form.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(form.getEmail()).isPresent()) {
             model.addAttribute("error", "이미 사용 중인 이메일입니다.");
             return "auth/register";
         }

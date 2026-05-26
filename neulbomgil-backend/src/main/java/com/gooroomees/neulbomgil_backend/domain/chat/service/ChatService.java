@@ -1,7 +1,7 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.service;
 
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserChatRepository;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
@@ -28,7 +28,7 @@ public class ChatService {
     public ChatRoomResponseDto startChatRoom(Long userId) {
 
 
-        UserAuth user = userAuthRepository.findById(userId)
+        User user = userAuthRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));
 
 
@@ -86,7 +86,7 @@ public class ChatService {
 
         ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("채팅방이 없습니다."));;
 
-        UserAuth sender = userAuthRepository.findById(userId)
+        User sender = userAuthRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));
 
         Chat chat = Chat.create(

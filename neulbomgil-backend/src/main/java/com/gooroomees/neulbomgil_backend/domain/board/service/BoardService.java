@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
@@ -61,14 +61,14 @@ public class BoardService {
     }
     // 상세 조회 + 조회수 증가
     @Transactional
-    public BoardResponseDTO getOneBoard(Long boardId, UserAuth userAuth) {
+    public BoardResponseDTO getOneBoard(Long boardId, User user) {
         Board board = findBoard(boardId);
         board.increaseCnt();
         long replyCount = replyRepository.countByBoard(board);
 
         // 로그인한 경우에만 좋아요 여부 확인
-        boolean likedByMe = (userAuth != null)
-                && boardLikeRepository.existsByBoardAndUser(board, userAuth);
+        boolean likedByMe = (user != null)
+                && boardLikeRepository.existsByBoardAndUser(board, user);
 
         return new BoardResponseDTO(board, replyCount, likedByMe);
     }
@@ -83,31 +83,31 @@ public class BoardService {
 
     // 글 작성
     @Transactional
-    public void createBoard(BoardRequestDTO dto, UserAuth userAuth) {
-        Board board = Board.create(userAuth, dto.getTitle(), dto.getContent());
+    public void createBoard(BoardRequestDTO dto, User user) {
+        Board board = Board.create(user, dto.getTitle(), dto.getContent());
         boardRepository.save(board);
     }
 
     // 글 수정
     @Transactional
-    public void updateBoard(BoardRequestDTO dto,Long boardId, UserAuth userAuth) {
+    public void updateBoard(BoardRequestDTO dto,Long boardId, User user) {
         Board board = findBoard(boardId);
-        board.validateOwner(userAuth);
+        board.validateOwner(user);
         board.update(dto.getTitle(), dto.getContent());
     }
 
     // 글 삭제
     @Transactional
-    public void deleteBoard(Long boardId, UserAuth userAuth) {
+    public void deleteBoard(Long boardId, User user) {
         Board board = findBoard(boardId);
-        board.validateOwner(userAuth);
+        board.validateOwner(user);
         boardRepository.deleteById(boardId);
     }
     // 좋아요 토글 (눌렀으면 취소, 안 눌렀으면 추가)
     @Transactional
-    public boolean toggleLike(Long boardId, UserAuth userAuth) {
+    public boolean toggleLike(Long boardId, User user) {
         Board board = findBoard(boardId);
-        Optional<BoardLike> existing = boardLikeRepository.findByBoardAndUser(board, userAuth);
+        Optional<BoardLike> existing = boardLikeRepository.findByBoardAndUser(board, user);
 
         if (existing.isPresent()) {
             // 이미 좋아요 → 취소
@@ -116,7 +116,7 @@ public class BoardService {
             return false; // 좋아요 취소됨
         } else {
             // 좋아요 추가
-            boardLikeRepository.save(BoardLike.create(board, userAuth));
+            boardLikeRepository.save(BoardLike.create(board, user));
             board.increaseLikeCnt();
             return true; // 좋아요 추가됨
         }

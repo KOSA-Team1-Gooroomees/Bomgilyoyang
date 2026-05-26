@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.favorite.controller.api;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteDeleteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
@@ -26,9 +26,9 @@ public class FavoriteController {
     )
     @PostMapping
     public ResponseEntity<Long> addFavorite(
-            @AuthenticationPrincipal UserAuth userAuth,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody FavoriteRequest request) {
-        return ResponseEntity.ok(favoriteService.saveFavorite(userAuth.getUserId(), request));
+        return ResponseEntity.ok(favoriteService.saveFavorite(user.getUserId(), request));
     }
 
     @Operation(
@@ -36,9 +36,9 @@ public class FavoriteController {
     )
     @GetMapping("/me")
     public ResponseEntity<List<FavoriteResponse>> getFavorites(
-            @AuthenticationPrincipal UserAuth userAuth
+            @AuthenticationPrincipal User user
     ) {
-        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userAuth.getUserId()));
+        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(user.getUserId()));
     }
 
     @Operation(
@@ -46,9 +46,9 @@ public class FavoriteController {
     )
     @DeleteMapping("/me")
     public ResponseEntity<Void> removeFavorite(
-            @AuthenticationPrincipal UserAuth userAuth,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody FavoriteDeleteRequest request) {
-        favoriteService.deleteFavorite(userAuth.getUserId(), request);
+        favoriteService.deleteFavorite(user.getUserId(), request);
         return ResponseEntity.noContent().build();
     }
 }

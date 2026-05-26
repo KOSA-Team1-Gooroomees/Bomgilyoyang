@@ -4,10 +4,10 @@ import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.CreateAccessTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.LoginResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
-import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
+import com.gooroomees.neulbomgil_backend.domain.auth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ import java.time.Duration;
 public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
-    private final UserAuthService userAuthService;
+    private final UserService userService;
 
     @Operation(summary = "회원 가입")
     @PostMapping("/signup")
@@ -80,7 +80,7 @@ public class AuthController {
 
     @Operation(summary = "비밀번호 재설정")
     @PostMapping("/password/change")
-    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserAuth user,
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal User user,
                                                  @RequestBody PasswordChangeRequest request) {
         try {
             if (authService.changePassword(user, request))
@@ -177,7 +177,7 @@ public class AuthController {
 
     @Operation(summary = "사용자 삭제")
     @GetMapping("/delete")
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserAuth user) {
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal User user) {
         authService.deleteUser(user.getUserId());
 
         return ResponseEntity.ok("User Removed");

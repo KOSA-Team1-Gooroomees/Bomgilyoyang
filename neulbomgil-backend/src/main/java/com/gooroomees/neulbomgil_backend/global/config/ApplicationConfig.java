@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserAuthRepository userRepository;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {

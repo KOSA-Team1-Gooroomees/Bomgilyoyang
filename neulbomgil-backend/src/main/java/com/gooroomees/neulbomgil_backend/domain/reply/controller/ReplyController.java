@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.reply.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.reply.service.ReplyService;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "댓글", description = "댓글 관련 API")
@@ -36,8 +35,8 @@ public class ReplyController {
     public ResponseEntity<Void> createReply(
             @PathVariable Long boardId,
             @RequestBody ReplyRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth) {
-        replyService.createReply(boardId, dto, userAuth);
+            @AuthenticationPrincipal User user) {
+        replyService.createReply(boardId, dto, user);
         return ResponseEntity.ok().build();
     }
     // 댓글 수정
@@ -48,8 +47,8 @@ public class ReplyController {
             @PathVariable Long boardId,
             @PathVariable Long replyId,
             @RequestBody ReplyRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth){
-        replyService.updateReply(boardId, replyId, dto, userAuth);
+            @AuthenticationPrincipal User user){
+        replyService.updateReply(boardId, replyId, dto, user);
         return ResponseEntity.ok().build();
     }
     // 댓글 삭제
@@ -59,8 +58,8 @@ public class ReplyController {
     public ResponseEntity<Void> deleteReply(
             @PathVariable Long boardId,
             @PathVariable Long replyId,
-            @AuthenticationPrincipal UserAuth userAuth) {
-        replyService.deleteReply(boardId, replyId, userAuth);
+            @AuthenticationPrincipal User user) {
+        replyService.deleteReply(boardId, replyId, user);
         return ResponseEntity.noContent().build();
     }
 }

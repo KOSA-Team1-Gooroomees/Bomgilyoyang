@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
@@ -10,12 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
-import static com.gooroomees.neulbomgil_backend.domain.auth.entity.QUserAuth.userAuth;
 
 @Tag(name = "게시판", description = "게시판 관련 API")
 @RestController
@@ -56,8 +53,8 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal UserAuth userAuth) {
-        return ResponseEntity.ok(boardService.getOneBoard(boardId, userAuth));
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(boardService.getOneBoard(boardId, user));
     }
 
     // 검색
@@ -76,9 +73,9 @@ public class BoardController {
     @PostMapping("/inserts")
     public ResponseEntity<Void> createBoard(
             @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth)
+            @AuthenticationPrincipal User user)
     {
-        boardService.createBoard(dto, userAuth);
+        boardService.createBoard(dto, user);
         return ResponseEntity.ok().build();
     }
 
@@ -89,9 +86,9 @@ public class BoardController {
     public ResponseEntity<Void> updateBoard(
             @PathVariable Long boardId,
             @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth)
+            @AuthenticationPrincipal User user)
     {
-        boardService.updateBoard(dto, boardId, userAuth);
+        boardService.updateBoard(dto, boardId, user);
         return ResponseEntity.ok().build();
     }
 
@@ -101,9 +98,9 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal UserAuth userAuth)
+            @AuthenticationPrincipal User user)
     {
-        boardService.deleteBoard(boardId, userAuth);
+        boardService.deleteBoard(boardId, user);
         return ResponseEntity.noContent().build();
     }
     // 좋아요 토글
@@ -111,8 +108,8 @@ public class BoardController {
     @PostMapping("/{boardId}/likes")
     public ResponseEntity<Map<String, Object>> toggleLike(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal UserAuth userAuth) {
-        boolean liked = boardService.toggleLike(boardId, userAuth);
+            @AuthenticationPrincipal User user) {
+        boolean liked = boardService.toggleLike(boardId, user);
         return ResponseEntity.ok(Map.of("liked", liked));
     }
 }

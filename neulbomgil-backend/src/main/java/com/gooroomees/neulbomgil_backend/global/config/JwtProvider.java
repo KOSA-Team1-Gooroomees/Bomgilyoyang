@@ -1,10 +1,10 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class JwtProvider {
     }
 
     // Refresh 토큰 생성
-    public String generateRefreshToken(UserAuth user) {
+    public String generateRefreshToken(User user) {
         return Jwts
                 .builder()
                 .subject(String.valueOf(user.getUserId()))
@@ -60,7 +60,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String generateAccessToken(UserAuth user) {
+    public String generateAccessToken(User user) {
         return Jwts
                 .builder()
                 .subject(String.valueOf(user.getUserId()))

@@ -1,9 +1,9 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.RefreshToken;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserAuthRepository userAuthRepository;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -43,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (accessToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userEmail = jwtProvider.extractUsername(accessToken);
-                UserAuth user = (UserAuth) this.userDetailsService.loadUserByUsername(userEmail);
+                User user = (User) this.userDetailsService.loadUserByUsername(userEmail);
                 if (jwtProvider.isTokenValid(accessToken, user)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         user,
@@ -66,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         if (dbToken != null) {
                             Long loginId = dbToken.getUserId();
-                            UserAuth user = userAuthRepository.findById(loginId).orElseThrow();
+                            User user = userRepository.findById(loginId).orElseThrow();
 
                             // 새 액세스 토큰 발급 및 쿠키 갱신
                             String newAccessToken = jwtProvider.generateAccessToken(user);

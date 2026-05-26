@@ -7,7 +7,7 @@ import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoTokenResp
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +33,11 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
     private final RefreshTokenService refreshTokenService;
-    private final UserAuthRepository userAuthRepository;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserAuthService userAuthService;
+    private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final EmailService emailService;
     private final AuthTokenRepository authTokenRepository;
@@ -52,14 +52,14 @@ public class AuthService {
     public String register(RegisterRequest registerRequest) {
         // 이메일 중복되면 처리안되도록
 
-        UserAuth user = UserAuth.builder()
+        User user = User.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .name(registerRequest.getName())
                 .role(Role.USER)
                 .status(Status.INACTIVE)
                 .build();
-        userAuthRepository.save(user);
+        userRepository.save(user);
         emailService.sendAuthLink(user.getUserId());
 
         return "User registered. Please check your email for verification.";
@@ -75,10 +75,10 @@ public class AuthService {
             throw new IllegalArgumentException("만료된 인증 토큰입니다.");
         }
 
-        UserAuth user = userAuthService.findById(authToken.getUserId());
+        User user = userService.findById(authToken.getUserId());
         if (authToken.getType() == TokenType.SIGNUP) {
             user.activate();
-            userAuthRepository.save(user);
+            userRepository.save(user);
             authTokenRepository.delete(authToken);
         } else if (authToken.getType() == TokenType.PASSWORD_RESET) {
             // UserAuth user = userAuthService.findById(authToken.getUserId());
@@ -86,14 +86,14 @@ public class AuthService {
             // 비밀번호 교체 로직
 
 
-            userAuthRepository.save(user);
+            userRepository.save(user);
             authTokenRepository.delete(authToken);
         }
     }
 
     @Transactional
     public void requestPasswordReset(PasswordResetRequest request) {
-        UserAuth user = userAuthRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         emailService.sendPasswordResetLink(user.getUserId());
 
@@ -109,9 +109,9 @@ public class AuthService {
             throw new IllegalArgumentException("만료된 인증 토큰입니다.");
         }
 
-        UserAuth user = userAuthService.findById(authToken.getUserId());
+        User user = userService.findById(authToken.getUserId());
         user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
-        userAuthRepository.save(user);
+        userRepository.save(user);
         authTokenRepository.delete(authToken);
     }
 
@@ -123,7 +123,7 @@ public class AuthService {
                 )
         );
 
-        UserAuth user = userAuthRepository.findByEmail(request.getEmail()).orElseThrow();
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         if (!user.getStatus().equals(Status.ACTIVE)) {
             throw new RuntimeException("Account is not active");
         }
@@ -162,7 +162,7 @@ public class AuthService {
         }
 
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        UserAuth user = userAuthService.findById(userId);
+        User user = userService.findById(userId);
 
         return jwtProvider.generateAccessToken(user);
     }
@@ -172,7 +172,7 @@ public class AuthService {
         KakaoTokenResponse kakaoToken = requestToken(accessCode);
         KakaoProfileResponse kakaoProfile = requestProfile(kakaoToken);
 
-        UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
+        User user = userRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
         if (user == null) {
             return null;
         }
@@ -199,10 +199,10 @@ public class AuthService {
     }
 
     // 사용자 활성화
-    private boolean activateUser(UserAuth user) {
+    private boolean activateUser(User user) {
         try {
             user.activate();
-            userAuthRepository.save(user);
+            userRepository.save(user);
         } catch (Exception e) {
             log.info(e.getMessage());
             return false;
@@ -212,12 +212,12 @@ public class AuthService {
     }
 
     // 사용자 변경
-    public boolean changeUser(UserAuth newUser) {
-        userAuthRepository.findById(newUser.getUserId())
+    public boolean changeUser(User newUser) {
+        userRepository.findById(newUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         try {
-            userAuthRepository.save(newUser);
+            userRepository.save(newUser);
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -226,10 +226,10 @@ public class AuthService {
     }
 
     // 비밀번호 변경
-    public boolean changePassword(UserAuth user, PasswordChangeRequest request) {
+    public boolean changePassword(User user, PasswordChangeRequest request) {
         try {
             log.info("User : " + user);
-             userAuthRepository.findById(user.getUserId())
+             userRepository.findById(user.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
             authenticationManager.authenticate(
@@ -241,7 +241,7 @@ public class AuthService {
 
             user.changePassword(passwordEncoder.encode(request.getNewPassword()));
 
-            userAuthRepository.save(user);
+            userRepository.save(user);
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -252,9 +252,9 @@ public class AuthService {
     // 사용자 삭제
     public boolean deleteUser(Long userId) {
         try {
-            UserAuth user = userAuthRepository.findById(userId).orElseThrow();
+            User user = userRepository.findById(userId).orElseThrow();
             user.deleteUser();
-            userAuthRepository.save(user);
+            userRepository.save(user);
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
