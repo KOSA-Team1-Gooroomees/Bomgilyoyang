@@ -69,17 +69,21 @@ public class AuthController {
     }
 
     @GetMapping("/api/auth/verify")
-    @ResponseBody
-    public ResponseEntity<String> verifyUser(@RequestParam("userid") long userId) {
+    public String verifyUser(@RequestParam("userid") long userId, Model model) {
         User user = userService.findById(userId);
-        if (user == null)
-            return ResponseEntity.badRequest().body("존재하지 않는 사용자입니다.");
-
-        if (!authService.activateUser(user)) {
-            return ResponseEntity.badRequest().body("계정 활성화에 실패하였습니다.");
+        if (user == null) {
+            model.addAttribute("msg", "존재하지 않는 사용자입니다.");
+            return "/";
         }
 
-        return ResponseEntity.ok().body("사용자의 계정이 활성화되었습니다.");
+        if (!authService.activateUser(user)) {
+            model.addAttribute("msg", "계정 활성화에 실패하였습니다.");
+            return "/";
+        }
+
+        model.addAttribute("msg", "계정이 활성화되었습니다.");
+        model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
+        return "auth/login";
     }
 }
 
