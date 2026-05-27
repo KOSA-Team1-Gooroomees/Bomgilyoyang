@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>늘봄길 - 로그인</title>
+    <title>봄길요양 - 로그인</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link th:href="@{/css/main.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <script>
         tailwind.config = {
             theme: {
@@ -23,25 +23,30 @@
         }
     </script>
 </head>
-<body class="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen flex items-center justify-center font-sans relative overflow-hidden">
+<body class="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen text-gray-800 flex flex-col">
 
-<div class="absolute bottom-0 left-0 w-full h-48 bg-[url('/images/bottom-landscape.png')] bg-cover bg-bottom z-0"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<div class="relative z-10 w-full max-w-[400px] px-5 mt-[-50px]">
+<!-- 가운데 정렬 영역 -->
+<div class="flex-1 flex items-center justify-center relative overflow-hidden px-4 py-10">
 
-    <div class="text-center relative mb-6">
-        <div class="flex justify-center items-center gap-2 mb-8 text-[#2C5F43] font-bold text-sm">
-            <img src="/images/icons/main-icon.png" alt="로고" class="w-10 h-10 rounded-full">
-            <span>늘봄길</span>
+
+
+<div class="relative z-10 w-full max-w-[400px] px-5 mt-[-50px] ">
+
+
+
+    <div class="rounded-[20px] shadow-lg p-6 relative z-10 mt-10 bg-[url('/images/login-background.png')] bg-cover bg-bottom ">
+        <div class="text-center relative mb-6 ">
+
+
+            <img src="/images/characters/rumi-left.png" alt="봄길요양 캐릭터" class="absolute -top-6 -right-10 w-28 h-auto z-20">
+
+            <h1 class="mt-10 text-3xl font-bold text-[#1F3D2D] mb-2 tracking-tight">
+                로그인
+            </h1>
+            <p class="text-gray-500 text-sm">봄길요양에 오신 것을 환영합니다</p>
         </div>
-
-        <!-- <img src="/images/mascot.png" alt="늘봄길 캐릭터" class="absolute -top-6 -right-4 w-28 h-auto z-20"> -->
-
-        <h1 class="text-3xl font-bold text-[#1F3D2D] mb-2 tracking-tight">로그인</h1>
-        <p class="text-gray-500 text-sm">늘봄길에 오신 것을 환영합니다</p>
-    </div>
-
-    <div class="bg-white rounded-[20px] shadow-lg p-6 relative z-10">
         <!-- 메시지 배너 -->
         <div th:if="${error}" class="mb-4 p-3.5 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs text-center font-medium">
             <span th:text="${error}">오류 메시지</span>
@@ -52,7 +57,7 @@
 
         <form th:action="@{/login}" method="post">
 
-            <div class="relative mb-3">
+            <div class="relative mb-3 ">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -93,7 +98,7 @@
             <div class="border-t border-gray-200 flex-grow"></div>
         </div>
 
-        <a th:href="@{/oauth2/authorization/kakao}" class="w-full bg-brand-kakao hover:bg-brand-kakaoHover text-[#3C1E1E] font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 text-sm">
+        <a th:href="${kakaoLoginUrl}" class="w-full bg-brand-kakao hover:bg-brand-kakaoHover text-[#3C1E1E] font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 text-sm">
             <svg class="w-4 h-4" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16 4.64C9.231 4.64 3.743 8.761 3.743 13.845c0 3.284 2.302 6.166 5.811 7.822l-1.127 4.14c-.11.402.35.7.671.49l4.802-3.187c.683.094 1.385.143 2.1.143 6.769 0 12.257-4.122 12.257-9.205C28.257 8.76 22.769 4.64 16 4.64z" fill="#3C1E1E"/>
                 <text x="16" y="17" font-size="7" font-weight="bold" fill="#FEE500" text-anchor="middle" font-family="sans-serif">TALK</text>
@@ -106,7 +111,9 @@
             <a th:href="@{/signup}" class="text-[#4A8A54] font-medium hover:underline ml-1">회원가입</a>
         </div>
     </div>
-</div>
 
+</div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

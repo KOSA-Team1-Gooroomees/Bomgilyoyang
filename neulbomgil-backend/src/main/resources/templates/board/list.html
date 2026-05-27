@@ -6,50 +6,56 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>게시판 - 봄길 요양</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
 <!-- NAVBAR -->
 <nav>
 <div th:replace="~{fragments/header :: header}"></div>
 </nav>
-
+<div class="flex-1">
 <!-- LAYOUT -->
-<div class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5">
+<div class="relative max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5 ">
 
     <!-- SIDEBAR -->
-    <aside class="flex flex-col gap-4">
-        <!-- 배너 -->
-        <div class="bg-primary-light rounded-xl p-5 relative overflow-hidden min-h-[160px]">
-            <p class="text-sm font-bold text-primary-dark mb-2">늘봄길 커뮤니티</p>
-            <p class="text-xs text-gray-600 leading-relaxed">시설 이용 정보와<br/>다양한 소식을<br/>함께 나눠요.</p>
-            <img src="/images/sheep.png" alt="마스코트"
-                 class="absolute bottom-0 right-2 w-20 opacity-85"
-                 onerror="this.style.display='none'"/>
-        </div>
 
+    <aside class="flex flex-col gap-4 bg-bg-soft">
+        <!-- 배너 -->
+        <div class="bg-[#a8c5b5] rounded-xl p-5 relative overflow-hidden min-h-[160px]">
+            <p class="text-sm font-bold text-primary-dark mb-2">봄길요양 커뮤니티</p>
+            <p class="text-xs text-gray-600 leading-relaxed">시설 이용 정보와<br/>다양한 소식을<br/>함께 나눠요.</p>
+            <img src="/images/characters/rumi-search.png" alt="마스코트"
+                 class="absolute bottom-0 right-2 w-20 "
+                 onerror="this.style.display='none'"/>
+
+        </div>
         <!-- 글쓰기 버튼 -->
         <button sec:authorize="isAnonymous()"
                 onclick="requireLogin()"
-                class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg text-sm cursor-pointer border-0 transition-colors">
+                class="w-full py-3 bg-[#2F6F42] hover:bg-primary-dark text-white font-bold rounded-lg text-sm cursor-pointer border-0 transition-colors">
             ✏️ 글쓰기
         </button>
         <a sec:authorize="isAuthenticated()"
            th:href="@{/boards/new}"
-           class="block w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg text-sm text-center no-underline transition-colors">
+           class="block w-full py-3 bg-[#2F6F42] hover:bg-primary-dark text-white font-bold rounded-lg text-sm text-center no-underline transition-colors">
             ✏️ 글쓰기
         </a>
 
+
         <!-- 채팅 -->
-        <div class="border border-gray-200 rounded-xl p-4">
+        <div class="border border-gray-200 rounded-xl p-4"  style="box-shadow:0 4px 6px rgba(0,0,0,0.22); background: rgba(255,255,255,0.35);">
             <p class="text-sm font-bold mb-1.5">도움이 필요하신가요?</p>
             <p class="text-xs text-gray-500 leading-relaxed mb-3">관리자와 1:1 채팅으로<br/>빠르게 문의해보세요.</p>
-            <button class="w-full py-2 bg-[#a8c5b5] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
+            <button type="button" id="chatOpenBtn" class="w-full py-2 bg-[#79a9ba] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
                 채팅하기
             </button>
+            <div
+                    id="chatUnreadDot"
+                    class="absolute -right-1 -top-1 hidden h-3 w-3 rounded-full bg-red-500">
+            </div>
         </div>
     </aside>
 
@@ -58,7 +64,7 @@
         <!-- 헤더 -->
         <div class="mb-5">
             <h2 class="text-xl font-bold">전체 게시글</h2>
-            <p class="text-xs text-gray-500 mt-1">늘봄길 이용자들과 정보를 나누고 소통해보세요.</p>
+            <p class="text-xs text-gray-500 mt-1">봄길요양 이용자들과 정보를 나누고 소통해보세요.</p>
         </div>
 
         <!-- 탭 + 검색 -->
@@ -158,6 +164,31 @@
                th:href="@{${currentUrl}(page=${boards.number + 1})}">&#8250;</a>
         </div>
     </main>
+    <!-- 채팅 패널 -->
+    <section
+            id="chatPanel"
+            class="hidden absolute left-[235px] top-6 z-50 h-[480px] w-[260px] overflow-hidden border border-gray-200 bg-[#bdd2dc] shadow-lg">
+
+        <div class="flex h-[54px] items-center justify-between border-b border-black/20 bg-[#bdd2dc] px-4 text-lg font-bold">
+
+            <span>관리자</span>
+
+            <button
+                    type="button"
+                    id="chatCloseBtn"
+                    class="cursor-pointer bg-transparent text-[34px] leading-none">
+                ×
+            </button>
+
+        </div>
+
+        <iframe
+                id="chatFrame"
+                class="h-[calc(480px-54px)] w-full border-0 bg-[#bdd2dc]">
+        </iframe>
+
+    </section>
+</div>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script th:inline="javascript">
@@ -166,6 +197,80 @@
         alert('로그인이 필요한 서비스입니다.');
         location.href = '/login';
     }
+</script>
+<script>
+
+    const chatOpenBtn = document.getElementById("chatOpenBtn");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatPanel = document.getElementById("chatPanel");
+    const chatFrame = document.getElementById("chatFrame");
+
+    chatOpenBtn.addEventListener("click", async () => {
+
+        /*
+            로그인 여부 확인
+        */
+        const authCheck = await fetch("/chatrooms/unread");
+
+        /*
+            토큰 만료 / 인증 실패
+        */
+        if(authCheck.status === 401){
+
+            alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+
+            window.location.href = "/login";
+
+            return;
+        }
+
+        /*
+            채팅창 열기
+        */
+        chatPanel.classList.remove("hidden");
+        chatPanel.classList.add("block");
+
+        /*
+            unread 점 제거
+        */
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(unreadDot){
+            unreadDot.classList.add("hidden");
+        }
+
+        if (!chatFrame.src) {
+            chatFrame.src = "/chatrooms/start";
+        }
+    });
+
+    chatCloseBtn.addEventListener("click", () => {
+
+        chatPanel.classList.remove("block");
+        chatPanel.classList.add("hidden");
+
+    });
+
+    async function checkUnreadChat(){
+
+        const response = await fetch("/chatrooms/unread");
+
+        const hasUnread = await response.json();
+
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(hasUnread){
+
+            unreadDot.classList.remove("hidden");
+
+        }else{
+
+            unreadDot.classList.add("hidden");
+        }
+    }
+
 </script>
 </body>
 </html>

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>늘봄길 - 마이페이지</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>봄길요양 - 마이페이지</title>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <script>
         tailwind.config = {
             theme: {
@@ -22,13 +23,13 @@
         }
     </script>
 </head>
-<body class="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen font-sans text-gray-800">
+<body class="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen text-gray-800">
 
 <!--<header class="bg-[#EAEAEA] border-b border-gray-300">-->
 <!--    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">-->
 <!--        <div class="flex items-center gap-2 font-bold text-gray-700">-->
 <!--            <div class="w-6 h-6 border border-gray-500 flex items-center justify-center text-xs">로고</div>-->
-<!--            <span>늘봄길</span>-->
+<!--            <span>봄길요양</span>-->
 <!--        </div>-->
 <!--        <nav class="hidden md:flex gap-8 text-sm font-medium text-gray-700">-->
 <!--            <a href="#" class="hover:text-black">지도</a>-->
@@ -42,7 +43,7 @@
 <!--        </div>-->
 <!--    </div>-->
 <!--</header>-->
-
+<div th:replace="~{fragments/header :: header}"></div>
 <main class="max-w-2xl mx-auto px-4 py-8 space-y-6">
 
     <div class="flex-1 max-w-2xl space-y-6">
@@ -164,6 +165,6 @@
 
     </div>
 </main>
-
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

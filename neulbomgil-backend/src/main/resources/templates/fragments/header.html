@@ -5,20 +5,23 @@
 <th:block th:fragment="header">
 
   <header class="bg-white flex items-center justify-between"
-          style="height:58px; padding:0 28px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+          style="font-family:'Eulyoo1945', serif;
+               height:58px;
+               padding:0 28px;
+               box-shadow:0 2px 8px rgba(0,0,0,0.15);">
 
     <!-- 왼쪽 -->
     <a th:href="@{/}" class="flex items-center" style="gap:10px; text-decoration:none;">
       <img th:src="@{/images/icons/main-icon.png}" alt="로고"
            class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
-      <span class="font-bold" style="font-size:20px; color:#222;">늘봄길</span>
+      <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
     </a>
 
     <!-- 가운데 메뉴 -->
     <nav class="flex items-center" style="gap:50px;" sec:authorize="hasAuthority('USER') or isAnonymous()">
-      <a href="#" class="font-bold" style="text-decoration:none; color:#222;">지도</a>
+      <a href="/map" class="font-bold" style="text-decoration:none; color:#222;">지도</a>
       <a th:href="@{/caregrade}" class="font-bold" style="text-decoration:none; color:#222;">장기요양등급 확인</a>
-      <a href="#" class="font-bold" style="text-decoration:none; color:#222;">게시판</a>
+      <a href="/boards" class="font-bold" style="text-decoration:none; color:#222;">게시판</a>
     </nav>
 
     <!-- 오른쪽 -->

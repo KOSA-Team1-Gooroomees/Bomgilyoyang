@@ -1,152 +1,101 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>장기요양등급 자가진단</title>
-  <link rel="stylesheet" th:href="@{/css/main.css}">
-</head>
+<main class="w-full max-w-5xl mx-auto px-4 py-6 pb-[50px] box-border">
 
-<body class="font-eulyoo" style="margin:0; background:#F5F6F3; color:#222;">
+  <section class="rounded-xl bg-white px-8 py-9 shadow-sm">
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <h1 class="text-center font-bold" style="font-size:32px; margin-bottom:12px;">
+      장기요양등급 자가진단
+    </h1>
 
-<main style="max-width:900px; margin:0 auto; padding:54px 20px 100px;">
+    <p class="text-center" style="font-size:15px; line-height:1.8; color:#555; margin-bottom:34px;">
+      아래 항목은 실제 등급 판정이 아닌 참고용 자가진단입니다.<br>
+      체크한 항목을 바탕으로 대략적인 돌봄 필요 정도를 확인할 수 있습니다.
+    </p>
 
-  <h1 class="font-bold" style="font-size:40px; margin-bottom:14px;">
-    장기요양등급 자가진단
-  </h1>
+    <!-- 신체 활동 -->
+    <section class="bg-white rounded-xl border border-border"
+             style="padding:26px 30px; margin-bottom:18px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+      <h3 class="font-bold" style="font-size:20px; color:#2F4F3D; margin-bottom:16px;">1. 신체 활동</h3>
 
-  <p style="font-size:17px; line-height:1.8; color:#555; margin-bottom:42px;">
-    아래 항목은 실제 등급 판정이 아닌 참고용 자가진단입니다.<br>
-    체크한 항목을 바탕으로 대략적인 돌봄 필요 정도를 확인할 수 있습니다.
-  </p>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="3" style="width:18px; height:18px; accent-color:#5F8F73;">
+        혼자서 식사하기 어렵다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="3" style="width:18px; height:18px; accent-color:#5F8F73;">
+        혼자서 화장실 이용이 어렵다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="2" style="width:18px; height:18px; accent-color:#5F8F73;">
+        옷 갈아입기나 세면에 도움이 필요하다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="2" style="width:18px; height:18px; accent-color:#5F8F73;">
+        실내 이동이나 침대에서 일어나는 데 도움이 필요하다.
+      </label>
+    </section>
 
-  <!-- 신체 활동 -->
-  <section class="bg-white rounded-2xl border border-border"
-           style="padding:34px 38px; margin-bottom:22px; box-shadow:0 6px 18px rgba(0,0,0,0.05);">
-    <h3 class="font-bold" style="font-size:24px; color:#2F4F3D; margin-bottom:22px;">1. 신체 활동</h3>
+    <!-- 인지 상태 -->
+    <section class="bg-white rounded-xl border border-border"
+             style="padding:26px 30px; margin-bottom:18px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+      <h3 class="font-bold" style="font-size:20px; color:#2F4F3D; margin-bottom:16px;">2. 인지 상태</h3>
 
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="3" style="width:20px; height:20px; accent-color:#5F8F73;">
-      혼자서 식사하기 어렵다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="3" style="width:20px; height:20px; accent-color:#5F8F73;">
-      혼자서 화장실 이용이 어렵다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="2" style="width:20px; height:20px; accent-color:#5F8F73;">
-      옷 갈아입기나 세면에 도움이 필요하다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="2" style="width:20px; height:20px; accent-color:#5F8F73;">
-      실내 이동이나 침대에서 일어나는 데 도움이 필요하다.
-    </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="3" style="width:18px; height:18px; accent-color:#5F8F73;">
+        최근 일을 자주 잊거나 같은 말을 반복한다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="3" style="width:18px; height:18px; accent-color:#5F8F73;">
+        시간, 장소, 사람을 헷갈리는 경우가 있다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="2" style="width:18px; height:18px; accent-color:#5F8F73;">
+        약 복용이나 식사 시간을 자주 놓친다.
+      </label>
+    </section>
+
+    <!-- 일상생활 관리 -->
+    <section class="bg-white rounded-xl border border-border"
+             style="padding:26px 30px; margin-bottom:18px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+      <h3 class="font-bold" style="font-size:20px; color:#2F4F3D; margin-bottom:16px;">3. 일상생활 관리</h3>
+
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="2" style="width:18px; height:18px; accent-color:#5F8F73;">
+        외출 시 보호자 동행이 필요하다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="2" style="width:18px; height:18px; accent-color:#5F8F73;">
+        집안일, 장보기, 식사 준비가 어렵다.
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:8px 0; font-size:15px; cursor:pointer;">
+        <input type="checkbox" value="1" style="width:18px; height:18px; accent-color:#5F8F73;">
+        혼자 생활하기에 불안한 상황이 자주 있다.
+      </label>
+    </section>
+
+    <!-- 버튼 -->
+    <div class="flex justify-center" style="gap:12px; margin-top:32px;">
+      <button type="button" class="text-white font-bold rounded-md"
+              style="min-width:180px; height:48px; font-size:17px; background:#5F8F73; border:none; cursor:pointer;"
+              onclick="calculateGrade()">
+        결과 확인하기
+      </button>
+      <button type="button" class="text-white font-bold rounded-md"
+              style="min-width:180px; height:48px; font-size:17px; background:#79A9BA; border:none; cursor:pointer;"
+              onclick="resetCheck()">
+        다시 선택하기
+      </button>
+    </div>
+
+    <!-- 결과 -->
+    <section id="resultBox"
+             style="display:none; margin-top:28px; padding:26px 30px; border-radius:20px; background:#BDD2DC; color:#22333A;">
+      <div id="resultTitle" class="font-bold" style="font-size:22px; margin-bottom:10px;"></div>
+      <div id="resultDesc" style="font-size:16px; line-height:1.8;"></div>
+    </section>
+
+    <p style="margin-top:24px; font-size:13px; color:#777; line-height:1.7; text-align:center;">
+      ※ 본 자가진단은 참고용이며, 실제 장기요양등급 판정은 국민건강보험공단의 방문조사와 등급판정위원회를 통해 결정됩니다.
+    </p>
+
   </section>
-
-  <!-- 인지 상태 -->
-  <section class="bg-white rounded-2xl border border-border"
-           style="padding:34px 38px; margin-bottom:22px; box-shadow:0 6px 18px rgba(0,0,0,0.05);">
-    <h3 class="font-bold" style="font-size:24px; color:#2F4F3D; margin-bottom:22px;">2. 인지 상태</h3>
-
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="3" style="width:20px; height:20px; accent-color:#5F8F73;">
-      최근 일을 자주 잊거나 같은 말을 반복한다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="3" style="width:20px; height:20px; accent-color:#5F8F73;">
-      시간, 장소, 사람을 헷갈리는 경우가 있다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="2" style="width:20px; height:20px; accent-color:#5F8F73;">
-      약 복용이나 식사 시간을 자주 놓친다.
-    </label>
-  </section>
-
-  <!-- 일상생활 관리 -->
-  <section class="bg-white rounded-2xl border border-border"
-           style="padding:34px 38px; margin-bottom:22px; box-shadow:0 6px 18px rgba(0,0,0,0.05);">
-    <h3 class="font-bold" style="font-size:24px; color:#2F4F3D; margin-bottom:22px;">3. 일상생활 관리</h3>
-
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="2" style="width:20px; height:20px; accent-color:#5F8F73;">
-      외출 시 보호자 동행이 필요하다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="2" style="width:20px; height:20px; accent-color:#5F8F73;">
-      집안일, 장보기, 식사 준비가 어렵다.
-    </label>
-    <label style="display:flex; align-items:center; gap:12px; padding:12px 0; font-size:18px; cursor:pointer;">
-      <input type="checkbox" value="1" style="width:20px; height:20px; accent-color:#5F8F73;">
-      혼자 생활하기에 불안한 상황이 자주 있다.
-    </label>
-  </section>
-
-  <!-- 버튼 -->
-  <div class="flex justify-center" style="gap:14px; margin-top:42px;">
-    <button type="button" class="text-white font-bold rounded-full"
-            style="min-width:210px; height:58px; font-size:20px; background:#5F8F73; border:none; cursor:pointer;"
-            onclick="calculateGrade()">
-      결과 확인하기
-    </button>
-    <button type="button" class="text-white font-bold rounded-full"
-            style="min-width:210px; height:58px; font-size:20px; background:#79A9BA; border:none; cursor:pointer;"
-            onclick="resetCheck()">
-      다시 선택하기
-    </button>
-  </div>
-
-  <!-- 결과 -->
-  <section id="resultBox"
-           style="display:none; margin-top:34px; padding:34px 38px; border-radius:28px; background:#BDD2DC; color:#22333A;">
-    <div id="resultTitle" class="font-bold" style="font-size:28px; margin-bottom:14px;"></div>
-    <div id="resultDesc" style="font-size:18px; line-height:1.8;"></div>
-  </section>
-
-  <p style="margin-top:28px; font-size:14px; color:#777; line-height:1.7; text-align:center;">
-    ※ 본 자가진단은 참고용이며, 실제 장기요양등급 판정은 국민건강보험공단의 방문조사와 등급판정위원회를 통해 결정됩니다.
-  </p>
-
 </main>
-
-<script>
-  function calculateGrade() {
-    const checkedItems = document.querySelectorAll('input[type="checkbox"]:checked');
-    let score = 0;
-    checkedItems.forEach(item => { score += Number(item.value); });
-
-    const resultBox   = document.getElementById("resultBox");
-    const resultTitle = document.getElementById("resultTitle");
-    const resultDesc  = document.getElementById("resultDesc");
-
-    let title = "", desc = "";
-
-    if (score >= 18) {
-      title = "높은 수준의 돌봄이 필요할 수 있습니다.";
-      desc  = "일상생활 전반에서 도움이 필요한 상태로 보입니다. 장기요양등급 신청을 적극적으로 검토해보는 것이 좋습니다.";
-    } else if (score >= 11) {
-      title = "부분적인 돌봄 지원이 필요할 수 있습니다.";
-      desc  = "신체 활동이나 인지 기능 일부에서 도움이 필요한 상태로 보입니다. 가족과 상의하여 장기요양 상담을 받아보는 것을 추천합니다.";
-    } else if (score >= 5) {
-      title = "가벼운 생활 지원이 필요할 수 있습니다.";
-      desc  = "현재는 일부 상황에서 도움이 필요한 정도로 보입니다. 상태 변화가 있다면 장기요양등급 신청 여부를 다시 확인해보세요.";
-    } else {
-      title = "현재는 독립적인 생활이 가능한 편입니다.";
-      desc  = "체크된 항목이 적어 당장 높은 수준의 돌봄 필요도는 낮아 보입니다. 다만 건강 상태 변화는 꾸준히 살펴보는 것이 좋습니다.";
-    }
-
-    resultTitle.textContent = title;
-    resultDesc.textContent  = desc;
-    resultBox.style.display = "block";
-    resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function resetCheck() {
-    document.querySelectorAll('input[type="checkbox"]').forEach(item => { item.checked = false; });
-    document.getElementById("resultBox").style.display = "none";
-  }
-</script>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
