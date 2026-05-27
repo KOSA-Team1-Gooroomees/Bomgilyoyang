@@ -16,4 +16,8 @@ public class UserAuthService {
         return userAuthRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
+
+    public UserAuth findByEmail(String email) {
+        return userAuthRepository.findByEmail(email).orElse(null);
+    }
 }

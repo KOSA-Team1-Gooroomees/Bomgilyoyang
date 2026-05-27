@@ -1,15 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoProfileResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
-import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,10 +29,10 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final RefreshTokenService refreshTokenService;
+    // private final RefreshTokenService refreshTokenService;
     private final UserAuthRepository userAuthRepository;
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+    // private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserAuthService userAuthService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -115,88 +112,88 @@ public class AuthService {
         authTokenRepository.delete(authToken);
     }
 
-    public JwtTokenResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+//    public JwtTokenResponse login(LoginRequest request) {
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        request.getEmail(),
+//                        request.getPassword()
+//                )
+//        );
+//
+//        UserAuth user = userAuthRepository.findByEmail(request.getEmail()).orElseThrow();
+//        if (!user.getStatus().equals(Status.ACTIVE)) {
+//            throw new RuntimeException("Account is not active");
+//        }
+//
+//        String accessToken = jwtProvider.generateAccessToken(user);
+//        String refreshToken = jwtProvider.generateRefreshToken(user);
+//
+//        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
+//        if (userRefreshToken == null) {
+//            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+//        } else {
+//            refreshTokenRepository.deleteById(userRefreshToken.getId());
+//            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+//        }
+//
+//        return JwtTokenResponse.builder()
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .build();
+//    }
 
-        UserAuth user = userAuthRepository.findByEmail(request.getEmail()).orElseThrow();
-        if (!user.getStatus().equals(Status.ACTIVE)) {
-            throw new RuntimeException("Account is not active");
-        }
+//    public void logout(String refreshToken) {
+//        if (!jwtProvider.isTokenValid(refreshToken))
+//            throw new IllegalArgumentException("토큰이 아닌 값이 넘어옴");
+//
+//        if (!jwtProvider.isRefreshToken(refreshToken))
+//            throw new IllegalArgumentException("해당 토큰은 refresh 토큰이 아님");
+//
+//        Long userId = jwtProvider.extractUserId(refreshToken);
+//        refreshTokenRepository.deleteById(userId);
+//    }
 
-        String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = jwtProvider.generateRefreshToken(user);
-
-        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
-        if (userRefreshToken == null) {
-            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
-        } else {
-            refreshTokenRepository.deleteById(userRefreshToken.getId());
-            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
-        }
-
-        return JwtTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
-    public void logout(String refreshToken) {
-        if (!jwtProvider.isTokenValid(refreshToken))
-            throw new IllegalArgumentException("토큰이 아닌 값이 넘어옴");
-
-        if (!jwtProvider.isRefreshToken(refreshToken))
-            throw new IllegalArgumentException("해당 토큰은 refresh 토큰이 아님");
-
-        Long userId = jwtProvider.extractUserId(refreshToken);
-        refreshTokenRepository.deleteById(userId);
-    }
-
-    public String createNewAccessToken(String refreshToken) {
-        if (!jwtProvider.isTokenValid(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 Refresh Token");
-        }
-
-        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        UserAuth user = userAuthService.findById(userId);
-
-        return jwtProvider.generateAccessToken(user);
-    }
+//    public String createNewAccessToken(String refreshToken) {
+//        if (!jwtProvider.isTokenValid(refreshToken)) {
+//            throw new IllegalArgumentException("유효하지 않은 Refresh Token");
+//        }
+//
+//        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
+//        UserAuth user = userAuthService.findById(userId);
+//
+//        return jwtProvider.generateAccessToken(user);
+//    }
 
     // 카카오 로그인
-    public JwtTokenResponse kakaoOAuthLogin(String accessCode, HttpServletResponse httpServletResponse) {
-        KakaoTokenResponse kakaoToken = requestToken(accessCode);
-        KakaoProfileResponse kakaoProfile = requestProfile(kakaoToken);
-
-        UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
-        if (user == null) {
-            return null;
-        }
-
-        if (!user.getStatus().equals(Status.ACTIVE)) {
-            throw new RuntimeException("Account is not active");
-        }
-
-        String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = jwtProvider.generateRefreshToken(user);
-
-        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
-        if (userRefreshToken == null) {
-            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
-        } else {
-            refreshTokenRepository.deleteById(userRefreshToken.getId());
-            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
-        }
-
-        return JwtTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
+//    public JwtTokenResponse kakaoOAuthLogin(String accessCode, HttpServletResponse httpServletResponse) {
+//        KakaoTokenResponse kakaoToken = requestToken(accessCode);
+//        KakaoProfileResponse kakaoProfile = requestProfile(kakaoToken);
+//
+//        UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
+//        if (user == null) {
+//            return null;
+//        }
+//
+//        if (!user.getStatus().equals(Status.ACTIVE)) {
+//            throw new RuntimeException("Account is not active");
+//        }
+//
+//        String accessToken = jwtProvider.generateAccessToken(user);
+//        String refreshToken = jwtProvider.generateRefreshToken(user);
+//
+//        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
+//        if (userRefreshToken == null) {
+//            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+//        } else {
+//            refreshTokenRepository.deleteById(userRefreshToken.getId());
+//            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+//        }
+//
+//        return JwtTokenResponse.builder()
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .build();
+//    }
 
     // 사용자 활성화
     private boolean activateUser(UserAuth user) {

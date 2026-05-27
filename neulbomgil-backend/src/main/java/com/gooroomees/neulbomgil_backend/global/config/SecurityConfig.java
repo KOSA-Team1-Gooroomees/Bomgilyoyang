@@ -18,29 +18,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableMethodSecurity // 자바 메소드 단위에서 보안 설정을 적용할 때 사용하는 어노테이션
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.configurationSource(request -> {
-                    var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // 프론트 주소
-                    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(java.util.List.of("*"));
-                    config.setAllowCredentials(true);
-                    return config;
-                }))
+                // .cors(cors -> cors.configurationSource(request -> {
+                //    var config = new org.springframework.web.cors.CorsConfiguration();
+                //    config.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // 프론트 주소
+                //    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                //    config.setAllowedHeaders(java.util.List.of("*"));
+                //    config.setAllowCredentials(true);
+                //    return config;
+                // }))
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())
                 )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        //websocket연결
-                        .requestMatchers("/**").permitAll()
+                        //.requestMatchers("/**").permitAll()
+                        .requestMatchers("/login", "/signup").permitAll()
                         .requestMatchers("/api/favorites/**").authenticated()
                         .requestMatchers("/api/map/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
@@ -54,8 +51,27 @@ public class SecurityConfig {
                         //.requestMatchers()
                         .anyRequest().authenticated()
                 )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login-process")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .expiredUrl("/")
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                )
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }
