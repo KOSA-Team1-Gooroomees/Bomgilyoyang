@@ -15,6 +15,7 @@ public class BoardResponseDTO {
     private long replyCount;   // 댓글 수 (추가)
     private boolean likedByMe; // 내가 좋아요 눌렀는지 여부 (추가)
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     public BoardResponseDTO(Board board, long replyCount) {
         this.boardid = board.getBoardid();
@@ -27,6 +28,7 @@ public class BoardResponseDTO {
         this.replyCount = replyCount;
         this.likedByMe = false;
         this.createdAt = board.getCreatedAt();
+        this.modifiedAt = board.getModifiedAt();
     }
     // 상세 조회용 (likedByMe 포함)
     public BoardResponseDTO(Board board, long replyCount, boolean likedByMe) {
@@ -40,5 +42,6 @@ public class BoardResponseDTO {
         this.replyCount = replyCount;
         this.likedByMe = likedByMe;
         this.createdAt = board.getCreatedAt();
+        this.modifiedAt = board.getModifiedAt();
     }
 }

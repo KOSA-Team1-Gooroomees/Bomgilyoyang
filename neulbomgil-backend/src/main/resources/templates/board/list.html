@@ -21,7 +21,6 @@
 <div class="relative max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5 ">
 
     <!-- SIDEBAR -->
-
     <aside class="flex flex-col gap-4 bg-bg-soft">
         <!-- 배너 -->
         <div class="bg-[#a8c5b5] rounded-xl p-5 relative overflow-hidden min-h-[160px]">
@@ -134,8 +133,14 @@
                           th:text="'[' + ${board.replyCount} + ']'"></span>
                 </td>
                 <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.name}"></td>
-                <td class="py-3.5 px-2 text-xs text-gray-400 text-center"
-                    th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}"></td>
+
+                <!-- createdAt 포맷 — #temporals 대신 문자열 변환 사용 -->
+                <td class="py-3.5 px-2 text-xs text-gray-400 text-center">
+                        <span th:if="${board.createdAt != null}"
+                              th:text="${#strings.substring(board.createdAt.toString(), 0, 10).replace('-', '.')}"></span>
+                    <span th:if="${board.createdAt == null}">-</span>
+                </td>
+
                 <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.cnt}"></td>
             </tr>
             <tr th:if="${boards.content.empty}">
@@ -199,7 +204,6 @@
     }
 </script>
 <script>
-
     const chatOpenBtn = document.getElementById("chatOpenBtn");
     const chatCloseBtn = document.getElementById("chatCloseBtn");
     const chatPanel = document.getElementById("chatPanel");
