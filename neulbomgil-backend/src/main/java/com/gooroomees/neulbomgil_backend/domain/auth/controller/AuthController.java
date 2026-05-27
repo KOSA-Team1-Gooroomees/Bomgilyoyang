@@ -5,6 +5,7 @@ import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,5 +86,27 @@ public class AuthController {
         model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
         return "auth/login";
     }
+
+//    @GetMapping("/kakao")
+//    public String kakaoLogin(@RequestParam("code") String accessCode, Model model, HttpServletResponse response) {
+//        JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
+//
+//        if (jwtTokenResponse == null)
+//            return ResponseEntity.ok(new LoginResponse(null));
+//
+//        // 리프레시 토큰을 HttpOnly 쿠키에 저장
+//        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
+//                .httpOnly(true)
+//                .secure(true) // HTTPS 환경 권장
+//                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
+//                .maxAge(604800000)
+//                .sameSite("Strict")
+//                .build();
+//
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//        response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
+//
+//        return "/";
+//    }
 }
 
