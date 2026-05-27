@@ -17,7 +17,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 
-    public UserAuth findByEmail(String email) {
-        return userAuthRepository.findByEmail(email).orElse(null);
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

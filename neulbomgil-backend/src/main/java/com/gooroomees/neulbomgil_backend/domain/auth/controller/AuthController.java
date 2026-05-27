@@ -1,12 +1,15 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.RegisterRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
-import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
+import com.gooroomees.neulbomgil_backend.domain.auth.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,14 +21,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     @Value("${kakao.auth.url}")
     private String kakaoLoginUrl;
 
     private final AuthService authService;
-    private final UserAuthRepository userAuthRepository;
-    private final UserAuthService userAuthService;
+    private final UserService userService;
 
     @GetMapping("/login")
     public String loginView(Model model) {
@@ -39,20 +42,9 @@ public class AuthController {
         return "auth/register";
     }
 
-    @PostMapping("/signup-process")
+    @PostMapping("/signup")
     public String signup(@ModelAttribute("signUpForm") RegisterRequest form, Model model) {
-//        // 1. 비밀번호 일치 검사
-//        if (form.getPassword() == null || !form.getPassword().equals(form.getConfirmPassword())) {
-//            model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
-//            return "auth/register";
-//        }
-
-//        // 2. 이메일 중복 검사
-//        if (userAuthRepository.findByEmail(form.getEmail()).isPresent()) {
-//            model.addAttribute("error", "이미 사용 중인 이메일입니다.");
-//            return "auth/register";
-//        }
-
+        log.info(form.toString());
         try {
             RegisterRequest request = RegisterRequest.builder()
                     .email(form.getEmail())
@@ -72,9 +64,22 @@ public class AuthController {
     @GetMapping("/api/auth/check-email")
     @ResponseBody
     public ResponseEntity<Boolean> checkEmailDuplication(@RequestParam("email") String email) {
-        boolean isDuplicated = userAuthService.findByEmail(email) != null;
+        boolean isDuplicated = userService.findByEmail(email) != null;
         return ResponseEntity.ok(isDuplicated);
     }
 
+    @GetMapping("/api/auth/verify")
+    @ResponseBody
+    public ResponseEntity<String> verifyUser(@RequestParam("userid") long userId) {
+        User user = userService.findById(userId);
+        if (user == null)
+            return ResponseEntity.badRequest().body("존재하지 않는 사용자입니다.");
+
+        if (!authService.activateUser(user)) {
+            return ResponseEntity.badRequest().body("계정 활성화에 실패하였습니다.");
+        }
+
+        return ResponseEntity.ok().body("사용자의 계정이 활성화되었습니다.");
+    }
 }
 

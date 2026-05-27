@@ -1,7 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

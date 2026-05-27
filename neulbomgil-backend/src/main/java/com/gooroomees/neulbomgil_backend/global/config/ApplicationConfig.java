@@ -1,6 +1,7 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,16 +19,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return username -> userRepository.findByEmail(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvide = new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider authProvide = new DaoAuthenticationProvider(customUserDetailsService);
         authProvide.setPasswordEncoder(passwordEncoder());
         return authProvide;
     }

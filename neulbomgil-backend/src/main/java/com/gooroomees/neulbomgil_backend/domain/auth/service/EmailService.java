@@ -1,9 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.AuthToken;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.TokenType;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +16,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender javaMailSender;
-    private final AuthTokenRepository authTokenRepository;
     private final UserService userService;
 
-    public void sendEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("noreply@example.com");
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        javaMailSender.send(message);
-    }
+//    public void sendEmail(String to, String subject, String text) {
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("noreply@example.com");
+//        message.setTo(to);
+//        message.setSubject(subject);
+//        message.setText(text);
+//        javaMailSender.send(message);
+//    }
 
     public void sendAuthLink(Long userId) {
         User user = userService.findById(userId);
 
-        String authToken = UUID.randomUUID().toString();
-
-        authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.SIGNUP));
-
-        String authLink = "http://localhost:8088/api/auth/verify?token=" + authToken;
+        String authLink = "http://localhost:8088/api/auth/verify?userid=" + userId;
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -68,7 +60,7 @@ public class EmailService {
         User user = userService.findById(userId);
         String authToken = UUID.randomUUID().toString();
 
-        authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.PASSWORD_RESET));
+        // authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.PASSWORD_RESET));
 
         // 프론트엔드 주소로 보내는 것이 일반적이나, 현재는 백엔드 또는 로컬 확인용으로 설정
         String resetLink = "http://localhost:8088/api/auth/verify/password?token=" + authToken;

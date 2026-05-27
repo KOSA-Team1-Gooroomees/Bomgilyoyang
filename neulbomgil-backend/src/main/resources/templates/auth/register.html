@@ -57,7 +57,7 @@
             <span id="clientErrorMessage">오류 메시지</span>
         </div>
 
-        <form id="signupForm" th:action="@{/signup-process}" th:method="post" th:object="${registerRequest}">
+        <form id="signupForm" th:action="@{/signup}" th:method="post" th:object="${registerRequest}">
 
             <div class="relative mb-3">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -263,10 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleVisibility(confirmPasswordInput, toggleConfirmPasswordBtn);
         });
     }
-    
-    // Password Validation Pattern
-    // 8-16 characters, containing English letters, numbers, and special characters
-    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
+
+    // 비밀번호 패턴 : 8~16자, 영어 문자, 숫자 포함해야 함
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)\S{8,16}$/;
     
     function validatePassword() {
         const val = passwordInput.value;
@@ -281,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordMsg.className = 'text-xs mt-1 mb-3 px-1 text-emerald-600 font-medium';
             return true;
         } else {
-            passwordMsg.textContent = '비밀번호는 영문, 숫자, 특수문자를 조합하여 8~16자로 입력해주세요.';
+            passwordMsg.textContent = '비밀번호는 영문, 숫자를 조합하여 8~16자로 입력해주세요.';
             passwordMsg.className = 'text-xs mt-1 mb-3 px-1 text-rose-500 font-medium';
             return false;
         }

@@ -1,170 +1,153 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>봄길요양 - 마이페이지</title>
-
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            green: '#5CA668', // 로그인 버튼의 메인 녹색
-                            greenHover: '#4A8A54',
-                            kakao: '#FEE500', // 카카오톡 노란색
-                            kakaoHover: '#E5CE00'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen text-gray-800">
+<body class="bg-[#f5f7f5] font-sans text-gray-800">
 
-<!--<header class="bg-[#EAEAEA] border-b border-gray-300">-->
-<!--    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">-->
-<!--        <div class="flex items-center gap-2 font-bold text-gray-700">-->
-<!--            <div class="w-6 h-6 border border-gray-500 flex items-center justify-center text-xs">로고</div>-->
-<!--            <span>봄길요양</span>-->
-<!--        </div>-->
-<!--        <nav class="hidden md:flex gap-8 text-sm font-medium text-gray-700">-->
-<!--            <a href="#" class="hover:text-black">지도</a>-->
-<!--            <a href="#" class="hover:text-black">시설 상세보기</a>-->
-<!--            <a href="#" class="hover:text-black">장기요양등급 확인</a>-->
-<!--            <a href="#" class="hover:text-black">게시판</a>-->
-<!--        </nav>-->
-<!--        <div class="flex gap-2">-->
-<!--            <button class="bg-blue-500 text-white px-4 py-1.5 text-sm font-medium">로그인</button>-->
-<!--            <button class="bg-blue-500 text-white px-4 py-1.5 text-sm font-medium">회원가입</button>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</header>-->
-<div th:replace="~{fragments/header :: header}"></div>
-<main class="max-w-2xl mx-auto px-4 py-8 space-y-6">
+<header class="bg-white px-8 py-4 flex justify-between items-center shadow-sm">
+    <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-800">
+        <div class="w-8 h-8 rounded-full bg-[#5CB071] flex items-center justify-center text-white">
+            <i class="fa-solid fa-leaf text-sm"></i>
+        </div>
+        봄길요양
+    </a>
 
-    <div class="flex-1 max-w-2xl space-y-6">
+    <nav class="flex gap-10 text-lg font-medium text-gray-700">
+        <a href="/map" class="hover:text-[#5CB071] transition-colors">지도</a>
+        <a href="/grade" class="hover:text-[#5CB071] transition-colors">장기요양등급 확인</a>
+        <a href="/board" class="hover:text-[#5CB071] transition-colors">게시판</a>
+    </nav>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-1">내 정보 수정</h2>
-            <p class="text-sm text-gray-500 mb-8">아이디와 이메일을 수정할 수 있습니다.</p>
+    <div class="flex gap-3">
+        <a href="/mypage" class="px-6 py-2 bg-[#5D8D6E] text-white rounded-full font-medium hover:bg-[#4d755b] transition-colors">마이페이지</a>
+        <a href="/logout" class="px-6 py-2 bg-[#5D8D6E] text-white rounded-full font-medium hover:bg-[#4d755b] transition-colors">로그아웃</a>
+    </div>
+</header>
 
-            <form th:action="@{/mypage/info}" method="post" class="space-y-6">
+<main class="max-w-6xl mx-auto py-12 px-4">
 
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">아이디</label>
-                    <div class="relative">
-                        <input type="text" name="username" value="borakim"
-                               class="w-full px-4 py-3 border border-green-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-green text-sm text-gray-900 bg-white">
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">마이페이지</h1>
+        <p class="text-sm text-gray-600">내 정보와 활동을 한눈에 확인해보세요</p>
+    </div>
+
+    <div class="bg-[#e6eee8] rounded-2xl p-8 flex items-center justify-between mb-12 shadow-sm">
+        <div class="flex items-center gap-6">
+            <div class="w-24 h-24 rounded-full bg-[#5CB071] flex items-center justify-center text-white text-5xl shadow-md">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                    안녕하세요 <span th:text="${member.name}">000</span> 님
+                </h2>
+                <p class="text-lg text-gray-500 font-medium" th:text="${member.email}">kim123@naver.com</p>
+            </div>
+        </div>
+        <button class="text-gray-500 hover:text-gray-700 transition-colors">
+            <i class="fa-solid fa-gear text-4xl"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <div class="bg-white border-2 border-gray-200 rounded-3xl p-6 shadow-sm h-[600px] flex flex-col">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-1">즐겨찾는 시설</h3>
+                <p class="text-sm text-gray-500">자주 찾는 시설을 한눈에 확인하세요.</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+
+                <div th:each="facility : ${favoriteFacilities}" class="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 relative shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-400">
+                        <i class="fa-solid fa-house-medical text-3xl"></i>
+                    </div>
+
+                    <div class="flex-1 py-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-bold text-gray-800 text-lg" th:text="${facility.name}">함열덕성원</h4>
+                            <span class="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded-md" th:text="${facility.distance} + 'km'">159.5km</span>
+                        </div>
+
+                        <div class="text-[#5CB071] text-xs mb-3 flex gap-1">
+                            <i class="fa-solid fa-tree"></i><i class="fa-solid fa-tree"></i><i class="fa-solid fa-tree"></i><i class="fa-solid fa-tree"></i><i class="fa-solid fa-tree"></i>
+                        </div>
+
+                        <div class="text-xs text-gray-500 space-y-1.5">
+                            <p class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-red-500 w-3"></i>
+                                <span th:text="${facility.address}">전라북도 익산시 익산대로 1666-33</span>
+                            </p>
+                            <p class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-phone text-gray-400 w-3"></i>
+                                <span th:text="${facility.phone}">063-862-8882</span>
+                            </p>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">영문, 숫자 포함 4~20자</p>
+
+                    <button class="absolute top-4 right-1/2 translate-x-[40px] text-red-500 hover:text-red-600">
+                        <i class="fa-solid fa-heart text-2xl drop-shadow-sm"></i>
+                    </button>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">이메일</label>
-                    <div class="relative">
-                        <input type="email" name="email" value="bora.kim@example.com"
-                               class="w-full px-4 py-3 border border-green-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-green text-sm text-gray-900 bg-white">
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+            </div>
+        </div>
+
+        <div class="bg-white border-2 border-gray-200 rounded-3xl p-6 shadow-sm h-[600px] flex flex-col">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-1">내가 쓴 게시판</h3>
+                <p class="text-sm text-gray-500">내가 작성한 게시판을 확인해보세요.</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+
+                <div th:each="post : ${myPosts}" class="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 relative shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-400">
+                        <i class="fa-regular fa-file-lines text-3xl"></i>
+                    </div>
+
+                    <div class="flex-1 py-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-bold text-gray-800 text-lg" th:text="${post.title}">함열덕성원 리뷰</h4>
+                            <span class="text-xs text-gray-400" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2026-05-27</span>
+                        </div>
+
+                        <div class="text-yellow-400 text-xs mb-3 flex gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                        </div>
+
+                        <div class="text-xs text-gray-500 line-clamp-2" th:text="${post.content}">
+                            시설이 아주 깨끗하고 직원분들이 친절하십니다. 추천합니다.
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">유효한 이메일 주소를 입력해주세요.</p>
                 </div>
 
-                <div class="flex justify-end pt-4">
-                    <button type="submit" class="bg-brand-green hover:bg-brand-greenHover text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200">
-                        저장하기
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-1">비밀번호 변경</h2>
-            <p class="text-sm text-gray-500 mb-8">안전한 계정 사용을 위해 주기적으로 비밀번호를 변경하세요.</p>
-
-            <form th:action="@{/mypage/password}" method="post" class="space-y-6">
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">현재 비밀번호</label>
-                    <div class="relative">
-                        <input type="password" name="currentPassword" placeholder="현재 비밀번호를 입력해주세요."
-                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm placeholder-gray-400 bg-gray-50/50">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">새 비밀번호</label>
-                    <div class="relative">
-                        <input type="password" name="newPassword" placeholder="새 비밀번호를 입력해주세요."
-                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm placeholder-gray-400 bg-gray-50/50">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">새 비밀번호 확인</label>
-                    <div class="relative">
-                        <input type="password" name="confirmNewPassword" placeholder="새 비밀번호를 다시 입력해주세요."
-                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm placeholder-gray-400 bg-gray-50/50">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">영문, 숫자, 특수문자 포함 8~20자</p>
-                </div>
-
-                <div class="flex justify-end pt-4">
-                    <button type="submit" class="bg-brand-green hover:bg-brand-greenHover text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200">
-                        변경하기
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 border-t-[3px] border-t-red-50">
-            <h2 class="text-xl font-bold text-red-500 mb-1">회원 탈퇴</h2>
-            <p class="text-sm text-gray-500 mb-8">회원 탈퇴 시 계정 정보와 즐겨찾기, 리뷰 등 모든 데이터가 삭제되며,<br>복구가 불가능합니다.</p>
-
-            <form th:action="@{/mypage/withdraw}" method="post" class="space-y-6">
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">비밀번호 확인</label>
-                    <div class="relative">
-                        <input type="password" name="withdrawPassword" placeholder="비밀번호를 입력해주세요."
-                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 text-sm placeholder-gray-400 bg-gray-50/50">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-4">
-                    <button type="submit" class="border border-red-200 text-red-500 bg-white hover:bg-red-50 font-medium px-8 py-3 rounded-lg transition-colors duration-200">
-                        회원 탈퇴하기
-                    </button>
-                </div>
-            </form>
-        </section>
+            </div>
+        </div>
 
     </div>
 </main>
-<div th:replace="~{fragments/footer :: footer}"></div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+</style>
 </body>
 </html>
