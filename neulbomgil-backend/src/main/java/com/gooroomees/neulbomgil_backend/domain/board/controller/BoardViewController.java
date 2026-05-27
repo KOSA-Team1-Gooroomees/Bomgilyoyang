@@ -85,4 +85,13 @@ public class BoardViewController {
     public String boardWritePage() {
         return "board/write";
     }
+
+    /*수정페이지*/
+    @GetMapping("/{boardId}/edit")
+    public String boardEditPage(@PathVariable Long boardId,
+                                @AuthenticationPrincipal UserAuth userAuth,
+                                Model model) {
+        model.addAttribute("board", boardService.getOneBoard(boardId, userAuth));
+        return "board/edit";
+    }
 }

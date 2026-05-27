@@ -3,6 +3,7 @@ package com.gooroomees.neulbomgil_backend.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -54,6 +55,36 @@ public class SecurityConfig {
                         //.requestMatchers()
                         .anyRequest().authenticated()
                 )
+                //조윤지
+//                .authorizeHttpRequests(req -> req
+//                        // 인증 없이 허용
+//                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/api/email/**").permitAll()
+//                        .requestMatchers("/api/map/**").permitAll()
+//                        .requestMatchers("/ws/**").permitAll()
+//                        .requestMatchers(
+//                                "/v3/api-docs/**",
+//                                "/swagger-ui/**",
+//                                "/swagger-ui.html"
+//                        ).permitAll()
+//
+//                        // 타임리프 정적 리소스 & 페이지
+//                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+//                        .requestMatchers("/", "/login", "/signup").permitAll()
+//
+//                        // 게시글 목록은 비로그인도 허용
+//                        .requestMatchers(HttpMethod.GET, "/boards").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/api/boards").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/api/boards/sort/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/api/boards/search").permitAll()
+//
+//                        .requestMatchers(HttpMethod.GET, "/boards/sort/**").permitAll()   // 타임리프 정렬 페이지
+//                        .requestMatchers(HttpMethod.GET, "/boards/search").permitAll()    // 타임리프 검색 페이지
+//
+//                        // 나머지는 로그인 필요
+//                        .anyRequest().authenticated()
+//                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

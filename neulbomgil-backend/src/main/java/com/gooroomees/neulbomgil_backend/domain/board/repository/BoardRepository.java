@@ -22,6 +22,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     ORDER BY COUNT(r) DESC, b.createdAt DESC
 """)
     Page<Board> findAllOrderByReplyCount(Pageable pageable);
-
     Long countByUser(UserAuth user);
 }
