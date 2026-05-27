@@ -1,0 +1,384 @@
+body {
+    margin: 0;
+    background-color: #f5f5f5;
+}
+/*admin-container*/
+/*├─ header*/
+/*└─ main-layout*/
+.admin-container {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh;
+}
+
+/*main-layout에 position: relative를 주면
+채팅 팝업 위치가 main-layout 내부 기준으로 잡힘.*/
+
+.main-layout {
+    position: relative;
+
+    display: flex;
+
+    /*main-layout 높이 고정*/
+    /*↓*/
+    /*sidebar / popup / content-area*/
+    /*전부 그 높이 기준으로 움직임*/
+    height: calc(100vh - 58px);
+
+}
+
+/* 왼쪽 사이드 */
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+
+    width: 300px;
+    height: 90%;
+
+    border-right: 1px solid #d1d5db;
+
+    background-color: var(--color-bg-soft);
+}
+
+.sidebar-list {
+    flex: 1;
+
+    overflow-y: auto;
+}
+/*chat-room-button*/
+/*├─ profile-image*/
+/*├─ room-content*/
+/*└─ unread-dot*/
+.chat-room-button {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    /*버튼 너비를 부모(sidebar-list) 전체로 채움.*/
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.7);
+
+    background-color: #b5d0ac;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    /*hover에 대한 스타일 변화 부드럽게*/
+    transition: 0.2s;
+}
+
+.chat-room-button:hover {
+    background-color: #9fbe95;
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+
+    margin-top: 10px;
+
+    object-fit: cover;
+
+    /*공간이 부족해도 이미지 크기가 줄지 않게*/
+    flex-shrink: 0;
+}
+
+.room-content {
+    flex: 1;
+    /*flex는 내용 안 줄어들게 하려고 하는데 이 함수를 사용하면*/
+    /*줄어드는 거 허용*/
+    min-width: 0;
+}
+
+.room-header {
+    display: flex;
+    /*세로 가운데 정렬.*/
+    align-items: center;
+    /*양 끝으로 밀기*/
+    justify-content: space-between;
+
+    margin-bottom: 4px;
+}
+
+.room-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.room-time {
+    font-size: 11px;
+    color: #333333;
+}
+
+.room-last-message {
+    /*밖으로 튀어나가는 부분 잘라냄.*/
+    overflow: hidden;
+    /*넘치면 ... 으로 표시 */
+    text-overflow: ellipsis;
+    font-size: 12px;
+
+    /*줄바꿈 금지.*/
+    white-space: nowrap;
+}
+
+.unread-dot {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background-color: #ef4444;
+
+    flex-shrink: 0;
+}
+
+/* 오른쪽 영역 */
+
+.content-area {
+    flex: 1;
+
+    overflow-y: auto;
+
+    background-color: #f8faf7;
+}
+
+/* 채팅 팝업 */
+
+.chat-popup {
+    /*채팅 팝업을 일반 레이아웃 흐름에서 빼는 거야.*/
+    position: absolute;
+    top: 0;
+    left: 300px;
+    z-index: 50;
+
+    display: none;
+    flex-direction: column;
+
+    width: 380px;
+    height: 100%;
+
+    border-right: 1px solid #d1d5db;
+
+    background-color: var(--color-popup);
+
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+}
+
+/*active 클래스가 붙었을 때만*/
+/*채팅 팝업 보여라*/
+.chat-popup.active {
+    display: flex;
+}
+
+/*chat-header*/
+/*├─ chat-title*/
+/*└─ close-button*/
+.chat-header {
+    display: flex;
+    /*세로 가운데 정렬 제목과 버튼 높이 맞춤*/
+    align-items: center;
+    justify-content: space-between;
+
+    height: 70px;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+}
+
+.chat-title {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.chat-close-button {
+    border: none;
+    background-color: transparent;
+
+    font-size: 42px;
+
+    cursor: pointer;
+}
+
+.chat-frame {
+
+
+    width: 100%;
+    height: 100%;
+
+    flex: 1;
+
+    border: 0;
+}
+
+/* 사용자 영역 */
+
+.user-container {
+    width: 100%;
+
+    padding: 36px 40px;
+
+    overflow-y: auto;
+}
+
+.user-header {
+    margin-bottom: 24px;
+}
+
+.user-title {
+    margin: 0;
+
+    font-size: 34px;
+    font-weight: bold;
+
+    color: #222222;
+}
+
+.user-description {
+    margin-top: 10px;
+
+    font-size: 15px;
+
+    color: #666666;
+}
+
+/* 필터 버튼 */
+
+.user-manage {
+    display: flex;
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+
+.manage-button {
+    height: 42px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    background-color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+    transition: 0.2s;
+}
+
+.manage-button.active {
+    background-color: #dfe9dd;
+}
+
+/* 테이블 */
+
+.user-table {
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background-color: white;
+
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+
+    max-height: calc(100vh - 300px);
+
+    overflow-y: auto;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 80px 1.1fr 1.5fr 1.1fr 100px 90px 90px 120px;
+
+    align-items: center;
+
+    padding: 18px 24px;
+
+    background-color: #f2f5ef;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 80px 1.1fr 1.5fr 1.1fr 100px 90px 90px 120px;
+
+    align-items: center;
+
+    padding: 18px 24px;
+
+    border-top: 1px solid #e5e7eb;
+
+    background-color: white;
+
+    transition: 0.2s;
+}
+
+.table-row:hover {
+    background-color: #fafcf8;
+}
+
+/* 상태 */
+
+.status-active,
+.status-removed,.status-inactive {
+    display: inline-flex;
+    /*배지 내부 글자 완전 정중앙*/
+    align-items: center;
+    justify-content: center;
+
+    width: 56px;
+    height: 28px;
+
+    border-radius: 50px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    color: white;
+}
+
+.status-active {
+    background-color: #8fb08e;
+}
+
+.status-removed {
+    background-color: #cc705f;
+}
+.status-inactive {
+    background-color: #ccbd5f;
+}
+
+.status-button {
+    padding: 8px 14px;
+
+    border: none;
+    border-radius: 10px;
+
+    background-color: #7faebb;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.status-button:hover {
+    background-color: #6b98a5;
+}

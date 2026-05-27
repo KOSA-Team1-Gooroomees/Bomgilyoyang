@@ -1,0 +1,201 @@
+/* 대부분 기본값 margin 8정도 있기 때문에 가장자리 여백을 없애려면 0*/
+body {
+
+    margin: 0;
+    background-color: var(--color-popup);
+    font-family: var(--font-eulyoo);
+}
+
+.chat-container {
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    background-color: var(--color-popup);
+
+    /*안쪽 요소들을 세로 방향으로 정렬 - 메시지 목록, 입력창*/
+    display: flex;
+    flex-direction: column;
+}
+
+.message-box {
+    /*부모와 비교해서 메시지 작성칸이 8 / 입력칸이 2*/
+    flex: 8;
+    /*메시지 많아지면 스크롤 자동 생성*/
+    overflow-y: auto;
+    /*안쪽 여백 없으면 너무 외곽으로 붙어있음*/
+    padding: 10px;
+
+}
+
+
+
+/*
+message-row
+├─ 시간
+└─ message(말풍선)
+*/
+
+
+/*
+message-wrapper
+→ 내 메시지인지 상대 메시지인지 구분
+
+message-row
+→ 실제 가로 배치
+*/
+
+.message-wrapper {
+    /* 이걸 기준으로 아래 justify-content 에서 오른쪽, 왼쪽 끝이 가능*/
+    width: 100%;
+    margin : 5px;
+}
+
+.my-wrapper .message-row {
+    justify-content: flex-end;
+}
+.other-wrapper .message-row {
+    justify-content: flex-start;
+}
+
+/*좌/우 배치
+시간 위치
+프로필 위치*/
+.message-row {
+    /*시간 + 말풍선을 가로로 배치*/
+    display: flex;
+    /*가로줄 안에서 요소들을 아래쪽 기준으로 맞춤.*/
+    align-items: flex-end;
+    /*시간 + 말풍선의 틈*/
+    gap: 3px;
+
+    width: 100%;
+}
+
+
+
+
+/*실제 채팅 말풍선 자체 스타일이야.*/
+.message {
+    /*flex는 가로 한 줄 전체 차지
+    inline-flex 는 내용 크기만큼만 차지 */
+    /*
+   inline-block은 작은 box같은 느낌 내용 크기만큼만 차지
+   inlineflex를 쓰면 메시지 안의 내용물들을 flex처럼 사용
+   */
+    display: inline-flex;
+
+    /*말풍선 내부 여백.*/
+    padding: 12px 14px;
+    border-radius: var(--radius-main);
+
+
+
+    /*줄 간격*/
+    line-height: 1.4;
+    /*엔터 처리*/
+    white-space: pre-wrap;
+}
+
+.message-time {
+    font-size: 11px;
+    color: rgba(0,0,0,0.5);
+
+    /*말풍선보다 살짝 띄운상태인 시간*/
+    margin-bottom: 4px;
+
+    /*줄바꿈 하지 마*/
+    white-space: nowrap;
+}
+
+
+.my-message {
+    background-color: var(--color-my-chat);
+    text-align: left;
+}
+
+.other-message {
+    background-color: #ffffff;
+    text-align: left;
+}
+
+
+.input-box {
+    flex: 2;
+
+    /*input box 안에도 text칸이랑 버튼이 세로로 정렬되어야 하기 때문에 필요*/
+    display: flex;
+    flex-direction: column;
+
+    background-color: #ffffff;
+
+}
+
+.input-box textarea {
+    flex: 1;
+    min-width: 0;
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: none;
+    outline: none;
+
+    border-radius: var(--radius-main);
+
+}
+
+/*부모 .input-box가 flx 이기 때문에 오른쪽 끝 flex-end*/
+.input-box button {
+    align-self: flex-end;
+    padding: 2px 2px;
+    margin: 10px 10px;
+    border: none;
+    border-radius: var(--radius-main);
+    background-color: var(--color-screen-button);
+
+    color: white;
+
+    cursor: pointer;
+}
+.input-box button:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.profile-image {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    flex-shrink: 0;
+}
+
+
+
+.date-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 18px 0;
+
+    font-size: 12px;
+    color: rgba(0,0,0,0.5);
+}
+
+.date-divider::before,
+.date-divider::after {
+    content: "";
+
+    flex: 1;
+    height: 1px;
+
+    background-color: rgba(0,0,0,0.1);
+
+    margin: 0 10px;
+}
+
+
