@@ -43,13 +43,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3' // JWT API
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3' // JWT Implementation
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JWT Serializer (JSON 처리를 위해 Jackson 선택)
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-
     //WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
