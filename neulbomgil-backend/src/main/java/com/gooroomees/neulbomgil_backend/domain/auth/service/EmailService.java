@@ -2,7 +2,7 @@ package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.AuthToken;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.TokenType;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class EmailService {
     private final JavaMailSender javaMailSender;
     private final AuthTokenRepository authTokenRepository;
-    private final UserAuthService userAuthService;
+    private final UserService userService;
 
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -32,7 +32,7 @@ public class EmailService {
     }
 
     public void sendAuthLink(Long userId) {
-        UserAuth user = userAuthService.findById(userId);
+        User user = userService.findById(userId);
 
         String authToken = UUID.randomUUID().toString();
 
@@ -65,7 +65,7 @@ public class EmailService {
     }
 
     public void sendPasswordResetLink(Long userId) {
-        UserAuth user = userAuthService.findById(userId);
+        User user = userService.findById(userId);
         String authToken = UUID.randomUUID().toString();
 
         authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.PASSWORD_RESET));

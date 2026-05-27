@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.controller.view;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.service.ChatService;
@@ -28,9 +28,9 @@ public class ChatViewController {
 
 
     @PostMapping("/start")
-    public ModelAndView startChatRoom(@AuthenticationPrincipal UserAuth userAuth) {
+    public ModelAndView startChatRoom(@AuthenticationPrincipal User user) {
         ChatRoomResponseDto chatRoom =
-                chatService.startChatRoom(userAuth.getUserId());
+                chatService.startChatRoom(user.getUserId());
 
         return new ModelAndView(
                 "redirect:/chatrooms/" + chatRoom.roomId() + "/message"
@@ -39,10 +39,10 @@ public class ChatViewController {
 
     @GetMapping("/start")
     public ModelAndView startChatRoomGet(
-            @AuthenticationPrincipal UserAuth userAuth
+            @AuthenticationPrincipal User user
     ) {
         ChatRoomResponseDto chatRoom =
-                chatService.startChatRoom(userAuth.getUserId());
+                chatService.startChatRoom(user.getUserId());
 
         return new ModelAndView(
                 "redirect:/chatrooms/" +
@@ -55,21 +55,21 @@ public class ChatViewController {
     @GetMapping("/{roomId}/message")
     public ModelAndView chatRoom(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal UserAuth userAuth
+            @AuthenticationPrincipal User user
     ) {
 
-        chatService.readMessages(roomId, userAuth.getUserId());
+        chatService.readMessages(roomId, user.getUserId());
 
 
         List<ChatResponseDto> messages =
-                chatService.getMessageByRoomId(roomId,userAuth.getUserId());
+                chatService.getMessageByRoomId(roomId, user.getUserId());
 
         ChatRoomResponseDto room =
                 chatService.getChatRoom(roomId);
 
         ModelAndView mv = new ModelAndView("chat/chat");
         mv.addObject("roomId", roomId);
-        mv.addObject("userId", userAuth.getUserId());
+        mv.addObject("userId", user.getUserId());
         mv.addObject("messages", messages);
 
          /*
@@ -77,7 +77,7 @@ public class ChatViewController {
     */
         String chatPartnerName;
 
-        if (userAuth.getUserId().equals(room.userId())) {
+        if (user.getUserId().equals(room.userId())) {
             chatPartnerName = "관리자";
         } else {
             chatPartnerName = room.name();
@@ -109,18 +109,18 @@ public class ChatViewController {
     @ResponseBody
     public void readMessages(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal UserAuth userAuth
+            @AuthenticationPrincipal User user
     ) {
-        chatService.readMessages(roomId, userAuth.getUserId());
+        chatService.readMessages(roomId, user.getUserId());
     }
 
     @GetMapping("/unread")
     @ResponseBody
     public boolean hasUnreadChats(
-            @AuthenticationPrincipal UserAuth userAuth
+            @AuthenticationPrincipal User user
     ) {
         return chatService.hasUnreadChats(
-                userAuth.getUserId()
+                user.getUserId()
         );
     }
 }

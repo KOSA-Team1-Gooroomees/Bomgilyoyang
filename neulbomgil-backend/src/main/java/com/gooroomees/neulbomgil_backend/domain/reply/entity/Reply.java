@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.reply.entity;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,7 +27,7 @@ public class Reply {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserAuth user;
+    private User user;
 
     private String content;
 
@@ -38,18 +38,18 @@ public class Reply {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    public static Reply create(Board board, UserAuth userAuth, String content) {
+    public static Reply create(Board board, User user, String content) {
         Reply reply = new Reply();
         reply.board = board;
-        reply.user = userAuth;
+        reply.user = user;
         reply.content = content;
         return reply;
     }
     public void update(String content) {
         this.content = content;
     }
-    public void validateOwner( UserAuth userAuth) {
-        if (!this.user.getUserId().equals(userAuth.getUserId())) {
+    public void validateOwner( User user) {
+        if (!this.user.getUserId().equals(user.getUserId())) {
             throw new IllegalArgumentException("본인 댓글만 수정/삭제할 수 있습니다.");
         }
     }

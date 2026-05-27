@@ -1,9 +1,8 @@
 package com.gooroomees.neulbomgil_backend.domain.reply.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
 import com.gooroomees.neulbomgil_backend.domain.board.repository.BoardRepository;
-import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.reply.entity.Reply;
@@ -43,26 +42,26 @@ public class ReplyService {
 
     //댓글 작성
     @Transactional
-    public void createReply(Long boardId, ReplyRequestDTO dto, UserAuth userAuth) {
+    public void createReply(Long boardId, ReplyRequestDTO dto, User user) {
         Board board = findBoard(boardId);
-        Reply reply = Reply.create(board, userAuth, dto.getContent());
+        Reply reply = Reply.create(board, user, dto.getContent());
         replyRepository.save(reply);
     }
 
     //댓글 수정
     @Transactional
-    public void updateReply(Long boardId, Long replyId, ReplyRequestDTO dto, UserAuth userAuth) {
+    public void updateReply(Long boardId, Long replyId, ReplyRequestDTO dto, User user) {
         Board board = findBoard(boardId);//게시글 있는지 확인
         Reply reply = findReply(replyId);//댓글 있는지 확인
-        reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
+        reply.validateOwner(user);// 본인이 작성한 댓글 맞는지 확인
         reply.update(dto.getContent());// 위의 조건이 다 해당된다면 수정 가능
     }
     //댓글 삭제
     @Transactional
-    public void deleteReply(Long boardId, Long replyId, UserAuth userAuth){
+    public void deleteReply(Long boardId, Long replyId, User user){
         Board board = findBoard(boardId);//게시글 있는지 확인
         Reply reply = findReply(replyId);//댓글 있는지 확인
-        reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
+        reply.validateOwner(user);// 본인이 작성한 댓글 맞는지 확인
         replyRepository.delete(reply);
         }
     }
