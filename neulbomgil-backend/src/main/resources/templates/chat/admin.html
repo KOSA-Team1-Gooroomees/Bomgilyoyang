@@ -5,758 +5,256 @@
     <title>관리자 채팅</title>
 
     <link rel="stylesheet" th:href="@{/css/main.css}">
-
-    <style>
-
-        *{
-            box-sizing: border-box;
-        }
-
-        body{
-            margin:0;
-            background-color:#f5f5f5;
-            font-family: var(--font-eulyoo);
-        }
-
-        .page {
-            width: 100%;
-            height: 100vh;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        .admin-container {
-            width: 100%;
-            height: calc(100vh - 58px);
-
-            display: flex;
-
-            background-color: #ffffff;
-        }
-
-        /*
-            =========================
-            왼쪽 채팅방 목록 영역
-            =========================
-        */
-
-        .chat-room-list{
-            width:300px;
-            height:100vh;
-
-            background-color:#f6faf4;
-
-            border-right:1px solid #dcdcdc;
-
-            display:flex;
-            flex-direction:column;
-        }
-
-
-
-        .search-area{
-            padding:10px;
-
-            background-color:#ffffff;
-
-            border-bottom:1px solid #e5e5e5;
-        }
-
-        .search-area input{
-            width:100%;
-            height:36px;
-
-            border:1px solid #dcdcdc;
-            border-radius:8px;
-
-            padding:0 12px;
-        }
-
-        .room-list{
-            flex:1;
-
-            overflow-y:auto;
-        }
-
-        .room-item{
-            width:100%;
-
-            border:none;
-
-            background-color:#b5d0ac;
-
-            padding:12px;
-
-            display:flex;
-            align-items:flex-start;
-            gap:10px;
-
-            cursor:pointer;
-
-            border-bottom:1px solid rgba(255,255,255,0.6);
-
-            text-align:left;
-        }
-
-        .room-item:hover{
-            background-color:#9fbe95;
-        }
-
-        .room-profile{
-            width:40px;
-            height:40px;
-
-            border-radius:50%;
-
-            object-fit:cover;
-
-            flex-shrink:0;
-        }
-
-        .room-info{
-            flex:1;
-
-            min-width:0;
-
-
-        }
-
-        .room-top{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-
-            margin-bottom:4px;
-        }
-
-        .room-name{
-            font-size:14px;
-            font-weight:bold;
-        }
-
-        .room-time{
-            font-size:11px;
-            color:#333333;
-        }
-
-        .room-message{
-            font-size:12px;
-
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
-        }
-
-        .unread-dot{
-            width:10px;
-            height:10px;
-
-            border-radius:50%;
-
-            background-color:#d46352;
-
-            flex-shrink:0;
-        }
-
-        /*
-            =========================
-            채팅 영역
-            =========================
-        */
-
-        .chat-area {
-            width: 350px;
-            height: 100vh;
-
-            background-color: #bdd2dc;
-            border-right: 1px solid #dcdcdc;
-
-            display: none;
-            flex-direction: column;
-        }
-
-        .chat-area.open {
-            display: flex;
-        }
-
-        .chat-header{
-            height:70px;
-
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-
-            padding:0 20px;
-
-            border-bottom:1px solid rgba(0,0,0,0.15);
-        }
-
-        .chat-title{
-            font-size:22px;
-            font-weight:bold;
-        }
-
-        .close-button{
-            border:none;
-            background:none;
-
-            font-size:42px;
-
-            cursor:pointer;
-        }
-
-        .chat-empty{
-            flex:1;
-
-            display:flex;
-            align-items:center;
-            justify-content:center;
-
-            color:rgba(0,0,0,0.4);
-
-            font-size:18px;
-            font-weight:bold;
-        }
-
-        .chat-frame{
-            width:100%;
-            flex:1;
-
-            border:none;
-
-            display:none;
-        }
-
-        /*
-            =========================
-            오른쪽 관리자 영역
-            =========================
-        */
-
-        .content-area{
-            flex:1;
-
-            background-color:#ffffff;
-
-
-            display:flex;
-
-            align-items:flex-start;
-            justify-content:flex-start;
-        }
-
-        .content-text{
-            color:#c0c0c0;
-
-            font-size:32px;
-            font-weight:bold;
-        }
-
-        /*
-    =========================
-    오른쪽 관리자 영역
-=========================
-*/
-
-        .content-area{
-
-            flex:1;
-
-            background-color:#f8faf7;
-
-            overflow-y:auto;
-        }
-
-        .admin-content{
-
-            width:100%;
-
-            padding:36px 40px;
-        }
-
-        .admin-header{
-
-            margin-bottom:24px;
-        }
-
-        .admin-title{
-
-            margin:0;
-
-            font-size:34px;
-            font-weight:700;
-
-            color:#222;
-        }
-
-        .admin-description{
-
-            margin-top:10px;
-
-            font-size:15px;
-
-            color:#666;
-        }
-
-        .admin-tab-area{
-
-            display:flex;
-            gap:12px;
-
-            margin-bottom:24px;
-        }
-
-        .admin-tab{
-
-            height:42px;
-
-            padding:0 18px;
-
-            border:none;
-            border-radius:999px;
-
-            background-color:white;
-
-            font-size:14px;
-            font-weight:700;
-
-            cursor:pointer;
-
-            box-shadow:0 2px 5px rgba(0,0,0,0.06);
-
-            transition:0.2s;
-        }
-
-        .admin-tab.active{
-
-            background-color:#dfe9dd;
-        }
-
-        .admin-table-wrapper{
-
-            background-color:white;
-
-            border-radius:18px;
-
-            overflow:hidden;
-
-            box-shadow:0 4px 12px rgba(0,0,0,0.06);
-        }
-
-        .admin-table-header,
-        .admin-table-row{
-
-            display:grid;
-
-            grid-template-columns:
-        80px
-        1.1fr
-        1.5fr
-        1.1fr
-        100px
-        90px
-        90px
-        120px;
-
-            align-items:center;
-
-            padding:18px 24px;
-        }
-
-        .admin-table-header{
-
-            background-color:#f2f5ef;
-
-            font-size:15px;
-            font-weight:700;
-        }
-
-        .admin-table-row{
-
-            border-top:1px solid #eeeeee;
-
-            background-color:white;
-        }
-
-        .admin-table-row:hover{
-
-            background-color:#fafcf8;
-        }
-
-        .status-active,
-        .status-remove{
-
-            display:inline-flex;
-
-            align-items:center;
-            justify-content:center;
-
-            width:56px;
-            height:28px;
-
-            border-radius:999px;
-
-            color:white;
-
-            font-size:13px;
-            font-weight:700;
-        }
-
-        .status-active{
-
-            background-color:#8fb08e;
-        }
-
-        .status-remove{
-
-            background-color:#cc705f;
-        }
-
-        .status-change-btn{
-
-            border:none;
-
-            background-color:#7faebb;
-
-            color:white;
-
-            border-radius:10px;
-
-            padding:8px 14px;
-
-            font-size:13px;
-            font-weight:700;
-
-            cursor:pointer;
-
-            transition:0.2s;
-        }
-
-        .status-change-btn:hover{
-
-            background-color:#6b98a5;
-        }
-
-    </style>
 </head>
-<body>
-<div class="page">
-    <!-- 로고 -->
+
+<body class="m-0 bg-[#f5f5f5] font-eulyoo">
+
+<div class="flex min-h-screen flex-col">
+
     <div th:replace="~{fragments/header :: header}"></div>
-<div class="admin-container">
 
-    <!-- =========================
-         왼쪽 채팅방 목록
-    ========================== -->
+    <div class="flex h-[calc(100vh-58px)] bg-white">
 
-    <section class="chat-room-list">
+        <section class="flex h-full w-[300px] flex-col border-r border-gray-300 bg-bg-soft">
 
-        <!-- 검색 -->
-        <div class="search-area">
-            <input type="text" placeholder="이름 또는 연락처 검색">
-        </div>
+            <div class="border-b border-gray-200 bg-white p-[10px]">
+                <input
+                        type="text"
+                        placeholder="이름 또는 연락처 검색"
+                        class="h-9 w-full rounded-lg border border-gray-300 px-3 outline-none">
+            </div>
 
-        <!-- 채팅방 목록 -->
-        <div class="room-list">
+            <div class="flex-1 overflow-y-auto">
 
-            <button
-                    type="button"
-                    class="room-item"
+                <button
+                        type="button"
+                        class="flex w-full cursor-pointer items-start gap-[10px] border-b border-white/70 bg-[#b5d0ac] p-3 text-left transition hover:bg-[#9fbe95]"
+                        th:each="room : ${chatRooms}"
+                        th:data-room-id="${room.roomId()}"
+                        th:data-room-name="${room.name()}"
+                        onclick="openChatRoom(this)">
 
-                    th:each="room : ${chatRooms}"
+                    <img
+                            th:src="@{/images/characters/rumi-face.png}"
+                            class="h-10 w-10 shrink-0 rounded-full object-cover"
+                            alt="프로필">
 
-                    th:data-room-id="${room.roomId()}"
-                    th:data-room-name="${room.name()}"
+                    <div class="min-w-0 flex-1">
 
-                    onclick="openChatRoom(this)">
+                        <div class="mb-1 flex items-center justify-between">
+                            <div
+                                    class="text-sm font-bold"
+                                    th:text="${room.name()}">
+                                사용자
+                            </div>
 
-                <!-- 프로필 -->
-                <img
-                        th:src="@{/images/characters/rumi-face.png}"
-                        class="room-profile"
-                        alt="프로필">
-
-                <!-- 정보 -->
-                <div class="room-info">
-
-                    <div class="room-top">
-
-                        <div
-                                class="room-name"
-                                th:text="${room.name()}">
-                            사용자
+                            <div
+                                    class="text-[11px] text-[#333333]"
+                                    th:text="${room.lastMessageAt() != null
+                                    ? #temporals.format(room.lastMessageAt(), 'HH:mm')
+                                    : ''}">
+                                14:35
+                            </div>
                         </div>
 
                         <div
-                                class="room-time"
-
-                                th:text="${room.lastMessageAt() != null
-                                ? #temporals.format(room.lastMessageAt(), 'HH:mm')
-                                : ''}">
-                            14:35
+                                class="truncate text-[12px]"
+                                th:text="${room.lastMessage() != null
+                                ? room.lastMessage()
+                                : '새로운 문의가 있습니다.'}">
+                            마지막 메시지
                         </div>
 
                     </div>
 
                     <div
-                            class="room-message"
-
-                            th:text="${room.lastMessage() != null
-                            ? room.lastMessage()
-                            : '새로운 문의가 있습니다.'}">
-                        마지막 메시지
+                            th:if="${room.unread()}"
+                            class="unread-dot h-[10px] w-[10px] shrink-0 rounded-full bg-red-500">
                     </div>
 
-                </div>
+                </button>
 
-                <!-- 읽지 않음 표시 -->
-                <div th:if="${room.unread()}" class="unread-dot"></div>
-
-            </button>
-
-        </div>
-
-    </section>
-
-    <!-- =========================
-         가운데 채팅창
-    ========================== -->
-
-    <section class="chat-area">
-
-        <div class="chat-header">
-
-            <div
-                    id="chatTitle"
-                    class="chat-title">
-                관리자
             </div>
 
-            <button
-                    type="button"
-                    class="close-button"
-                    onclick="closeChatRoom()">
-                ×
-            </button>
+        </section>
 
-        </div>
+        <section
+                id="chatArea"
+                class="hidden h-full w-[350px] flex-col border-r border-gray-300 bg-popup">
 
-        <!-- 처음 빈 화면 -->
-        <div
-                id="chatEmpty"
-                class="chat-empty">
+            <div class="flex h-[70px] items-center justify-between border-b border-black/15 px-5">
+                <div
+                        id="chatTitle"
+                        class="text-[22px] font-bold">
+                    관리자
+                </div>
 
-            채팅방을 선택해주세요.
+                <button
+                        type="button"
+                        class="cursor-pointer bg-transparent text-[42px]"
+                        onclick="closeChatRoom()">
+                    ×
+                </button>
+            </div>
 
-        </div>
+            <div
+                    id="chatEmpty"
+                    class="flex flex-1 items-center justify-center text-lg font-bold text-black/40">
+                채팅방을 선택해주세요.
+            </div>
 
-        <!-- 실제 채팅 iframe -->
-        <iframe
-                id="chatFrame"
-                class="chat-frame"
-                src="about:blank">
-        </iframe>
+            <iframe
+                    id="chatFrame"
+                    class="hidden h-full w-full flex-1 border-0"
+                    src="about:blank">
+            </iframe>
 
-    </section>
+        </section>
 
+        <section class="flex-1 overflow-y-auto bg-[#f8faf7]">
 
+            <div class="w-full px-10 py-9">
 
-    <!-- =========================
-       오른쪽 관리자 페이지 영역
-  ========================== -->
-
-    <section class="content-area">
-
-        <div class="admin-content">
-
-            <!-- 제목 -->
-            <div class="admin-header">
-
-                <div>
-                    <h2 class="admin-title">
+                <div class="mb-6">
+                    <h2 class="text-[34px] font-bold text-[#222]">
                         사용자 관리
                     </h2>
 
-                    <p class="admin-description">
+                    <p class="mt-[10px] text-[15px] text-[#666]">
                         회원 정보를 조회하고 관리할 수 있습니다.
                     </p>
                 </div>
 
-            </div>
+                <div class="mb-6 flex gap-3">
 
-            <!-- 탭 -->
-            <div class="admin-tab-area">
+                    <button
+                            type="button"
+                            class="h-[42px] cursor-pointer rounded-full bg-white px-[18px] text-sm font-bold shadow-md transition"
+                            th:classappend="${type == 'all'} ? ' bg-[#dfe9dd]' : ''"
+                            onclick="location.href='/admin/users'">
+                        전체 사용자
+                        (<span th:text="${allUserCount}">0</span>)
+                    </button>
 
-                <!-- 전체 사용자 -->
-                <button
-                        type="button"
-
-                        class="admin-tab"
-
-                        th:classappend="${type == 'all'} ? ' active' : ''"
-
-                        onclick="location.href='/admin/users'">
-
-                    전체 사용자
-                    (<span th:text="${allUserCount}">0</span>)
-
-                </button>
-
-                <!-- 탈퇴 사용자 -->
-                <button
-                        type="button"
-
-                        class="admin-tab"
-
-                        th:classappend="${type == 'deleted'} ? ' active' : ''"
-
-                        onclick="location.href='/admin/users/deleted'">
-
-                    탈퇴 사용자
-                    (<span th:text="${deletedUserCount}">0</span>)
-
-                </button>
-
-            </div>
-
-            <!-- 테이블 -->
-            <div class="admin-table-wrapper">
-
-                <!-- 헤더 -->
-                <div class="admin-table-header">
-
-                    <div>번호</div>
-                    <div>이름(아이디)</div>
-                    <div>이메일</div>
-                    <div>가입일</div>
-                    <div>상태</div>
-                    <div>게시글</div>
-                    <div>댓글</div>
-                    <div>관리</div>
+                    <button
+                            type="button"
+                            class="h-[42px] cursor-pointer rounded-full bg-white px-[18px] text-sm font-bold shadow-md transition"
+                            th:classappend="${type == 'deleted'} ? ' bg-[#dfe9dd]' : ''"
+                            onclick="location.href='/admin/users/deleted'">
+                        탈퇴 사용자
+                        (<span th:text="${deletedUserCount}">0</span>)
+                    </button>
 
                 </div>
 
-                <!-- 사용자 목록 -->
-                <div class="admin-table-row" th:each="user : ${users}">
+                <div class="overflow-hidden rounded-[18px] bg-white shadow-lg">
 
-                    <div th:text="${user.userId()}">1</div>
-
-                    <div th:text="${user.name()} ?: '-'">이름</div>
-
-                    <div th:text="${user.email()} ?: '-'">email@test.com</div>
-
-                    <div th:text="${user.createdAt()} ?: '-'">2026.03.14</div>
-
-                    <div>
-        <span
-                th:if="${user.status().name() == 'ACTIVE'}"
-                class="status-active">
-            활성
-        </span>
-
-                        <span
-                                th:if="${user.status().name() == 'REMOVED'}"
-                                class="status-remove">
-            탈퇴
-        </span>
+                    <div class="grid grid-cols-[80px_1.1fr_1.5fr_1.1fr_100px_90px_90px_120px] items-center bg-[#f2f5ef] px-6 py-[18px] text-[15px] font-bold">
+                        <div>번호</div>
+                        <div>이름(아이디)</div>
+                        <div>이메일</div>
+                        <div>가입일</div>
+                        <div>상태</div>
+                        <div>게시글</div>
+                        <div>댓글</div>
+                        <div>관리</div>
                     </div>
 
-                    <div th:text="${user.boardCount() != null ? user.boardCount() : 0}">0</div>
+                    <div
+                            th:each="user : ${users}"
+                            class="grid grid-cols-[80px_1.1fr_1.5fr_1.1fr_100px_90px_90px_120px] items-center border-t border-gray-200 bg-white px-6 py-[18px] hover:bg-[#fafcf8]">
 
-                    <div th:text="${user.replyCount() != null ? user.replyCount() : 0}">0</div>
+                        <div th:text="${user.userId()}">1</div>
 
-                    <div>
-                        <form th:action="@{/admin/users/{userId}/status(userId=${user.userId()})}" method="post">
-                            <button type="submit" class="status-change-btn">상태변경</button>
-                        </form>
+                        <div th:text="${user.name()} ?: '-'">이름</div>
+
+                        <div th:text="${user.email()} ?: '-'">email@test.com</div>
+
+                        <div th:text="${user.createdAt()} ?: '-'">2026.03.14</div>
+
+                        <div>
+                            <span
+                                    th:if="${user.status().name() == 'ACTIVE'}"
+                                    class="inline-flex h-7 w-14 items-center justify-center rounded-full bg-[#8fb08e] text-[13px] font-bold text-white">
+                                활성
+                            </span>
+
+                            <span
+                                    th:if="${user.status().name() == 'REMOVED'}"
+                                    class="inline-flex h-7 w-14 items-center justify-center rounded-full bg-[#cc705f] text-[13px] font-bold text-white">
+                                탈퇴
+                            </span>
+                        </div>
+
+                        <div th:text="${user.boardCount() != null ? user.boardCount() : 0}">0</div>
+
+                        <div th:text="${user.replyCount() != null ? user.replyCount() : 0}">0</div>
+
+                        <div>
+                            <form
+                                    th:action="@{/admin/users/{userId}/status(userId=${user.userId()})}"
+                                    method="post">
+
+                                <button
+                                        type="submit"
+                                        class="cursor-pointer rounded-[10px] bg-[#7faebb] px-[14px] py-2 text-[13px] font-bold text-white transition hover:bg-[#6b98a5]">
+                                    상태변경
+                                </button>
+
+                            </form>
+                        </div>
+
                     </div>
 
                 </div>
 
             </div>
 
-        </div>
+        </section>
 
-    </section>
+    </div>
 
 </div>
-</div>
+
 <script>
-    const chatArea = document.querySelector(".chat-area");
-    /*
-        iframe 요소
-    */
+    const chatArea = document.getElementById("chatArea");
     const chatFrame = document.getElementById("chatFrame");
-
-    /*
-        빈 화면 요소
-    */
     const chatEmpty = document.getElementById("chatEmpty");
-
-    /*
-        상단 제목 요소
-    */
     const chatTitle = document.getElementById("chatTitle");
 
-    /*
-        채팅방 열기
-    */
-    function openChatRoom(element){
-
+    function openChatRoom(element) {
         const roomId = element.dataset.roomId;
         const roomName = element.dataset.roomName;
 
-        chatArea.classList.add("open");
+        chatArea.classList.remove("hidden");
+        chatArea.classList.add("flex");
 
         chatTitle.textContent = roomName;
 
-        chatEmpty.style.display = "none";
+        chatEmpty.classList.add("hidden");
 
-        chatFrame.style.display = "block";
-
+        chatFrame.classList.remove("hidden");
         chatFrame.src = "/chatrooms/" + roomId + "/message";
-
-
 
         const unreadDot = element.querySelector(".unread-dot");
 
-        if(unreadDot){
-            unreadDot.style.display = "none";
+        if (unreadDot) {
+            unreadDot.classList.add("hidden");
         }
     }
 
-    /*
-        채팅창 닫기
-    */
-    function closeChatRoom(){
-
-        /*
-            iframe 제거
-        */
+    function closeChatRoom() {
         chatFrame.src = "about:blank";
+        chatFrame.classList.add("hidden");
 
-        /*
-            iframe 숨김
-        */
-        chatFrame.style.display = "none";
+        chatEmpty.classList.remove("hidden");
+        chatEmpty.classList.add("flex");
 
-        /*
-            빈 화면 표시
-        */
-        chatEmpty.style.display = "flex";
-
-        /*
-            제목 초기화
-        */
         chatTitle.textContent = "관리자";
 
-        /*
-            채팅 영역 닫기
-        */
-        chatArea.classList.remove("open");
+        chatArea.classList.remove("flex");
+        chatArea.classList.add("hidden");
     }
-
 </script>
 
 </body>

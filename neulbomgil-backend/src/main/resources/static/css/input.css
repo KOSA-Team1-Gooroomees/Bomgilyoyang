@@ -35,9 +35,9 @@
     /* ===== 본문은 따로 pretendard로 사용할 경우 =====
     --font-sans: "Pretendard", "Noto Sans KR", sans-serif;
      */
-    /* =====본문도 Eulyoo 사용할 경우===== */
+    /* =====본문도 Eulyoo 사용할 경우=====
     --font-sans: "Eulyoo1945", serif;
-
+    */
 
     /* ===== Main Button Color (로그인,회원가입 )===== */
     --color-primary: #5F8F73;
@@ -49,6 +49,7 @@
 
     /* ===== 페이지 내 버튼 (글쓰기, 등록)     ===== */
     --color-screen-button: #2F6F42;
+    --color-screen-button-hover: #1a4a28;
 
     /* ===== left side bar ===== */
     --color-bg-soft: #F4F7F2;

@@ -19,8 +19,153 @@
     -->
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
-    <link rel="stylesheet" th:href="@{/css/chat.css}">
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <style>
+
+        body {
+            margin: 0;
+            background-color: var(--color-popup);
+            font-family: var(--font-eulyoo);
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+            background-color: var(--color-popup);
+
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-box {
+            flex: 8;
+
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+
+            background-color: transparent;
+        }
+
+
+        .input-box {
+            flex: 2;
+
+            display: flex;
+            flex-direction: column;
+
+            background-color: #ffffff;
+
+        }
+
+        .message {
+            display: inline-flex;
+            flex-direction: column;
+
+
+            padding: 12px 14px;
+            border-radius: var(--radius-main);
+
+            width: fit-content;
+            max-width: 100%;
+
+            line-height: 1.4;
+
+            white-space: pre-wrap;
+        }
+
+        .message-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin : 5px;
+        }
+        .my-wrapper .message-row {
+            justify-content: flex-end;
+        }
+        .other-wrapper .message-row {
+            justify-content: flex-start;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+
+            width: 100%;
+            max-width: 100%;
+        }
+
+
+        .message-time {
+            font-size: 11px;
+            color: rgba(0,0,0,0.5);
+
+            margin-bottom: 4px;
+
+            white-space: nowrap;
+        }
+
+        .my-message {
+            background-color: var(--color-my-chat);
+            text-align: left;
+        }
+
+        .other-message {
+            background-color: #ffffff;
+            text-align: left;
+        }
+
+
+
+        .input-box textarea {
+            flex: 1;
+            min-width: 0;
+
+            width: 100%;
+
+            padding: 10px;
+
+            border: none;
+            outline: none;
+
+            font-family: var(--font-eulyoo);
+            border-radius: var(--radius-main);
+            background-color: #ffffff;
+        }
+
+        .input-box button {
+            align-self: flex-end;
+            padding: 2px 2px;
+            margin: 10px 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--color-screen-button);
+            color: white;
+            font-family: var(--font-eulyoo);
+            cursor: pointer;
+        }
+
+        .profile-image {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            flex-shrink: 0;
+        }
+
+        .input-box button:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+
+
+    </style>
 </head>
 <body>
 

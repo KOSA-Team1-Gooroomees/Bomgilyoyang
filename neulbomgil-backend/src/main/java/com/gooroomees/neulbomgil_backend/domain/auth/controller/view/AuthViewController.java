@@ -9,6 +9,7 @@ import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.LoginRequest;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +20,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 public class AuthViewController {
 
+    @Value("${kakao.auth.url}")
+    private String kakaoLoginUrl;
+
     private final AuthService authService;
     private final UserAuthRepository userAuthRepository;
 
     @GetMapping("/login")
     public String loginView(Model model) {
+        model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
         return "auth/login";
     }
 

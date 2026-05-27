@@ -16,6 +16,8 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+       parkDataInitService.initParkData();
+       facilityDataInitService.refreshFacilities();
 //        parkDataInitService.initParkData();
 //        facilityDataInitService.refreshFacilities();
     }
