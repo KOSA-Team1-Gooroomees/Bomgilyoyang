@@ -143,9 +143,10 @@
         fetch('/api/boards/inserts', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // JWT
+                'Content-Type': 'application/json'
+                // Authorization 헤더 제거
             },
+            credentials: 'include', // ← 세션 쿠키 자동 포함
             body: JSON.stringify({ title, content })
         })
             .then(res => {

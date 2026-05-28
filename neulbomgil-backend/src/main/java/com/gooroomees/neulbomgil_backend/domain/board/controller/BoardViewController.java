@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
@@ -64,10 +65,11 @@ public class BoardViewController {
     @GetMapping("/{boardId}")
     public String boardDetail(@PathVariable Long boardId,
                               @RequestParam(defaultValue = "0") int replyPage,
-                              @AuthenticationPrincipal User userAuth,
+                              @AuthenticationPrincipal CustomUserDetails customUserDetails,
                               Model model) {
+        User user = customUserDetails.getUser();
         // 게시글 (조회수 +1, likedByMe 포함)
-        BoardResponseDTO board = boardService.getOneBoard(boardId, userAuth);
+        BoardResponseDTO board = boardService.getOneBoard(boardId, user);
         model.addAttribute("board", board);
 
         // 댓글 목록
@@ -75,8 +77,7 @@ public class BoardViewController {
 
         // 현재 로그인 유저 ID (수정/삭제 버튼 표시 조건)
         model.addAttribute("currentUserId",
-                userAuth != null ? userAuth.getUserId() : null);
-
+                user != null ? user.getUserId() : null);
         return "board/detail";
     }
 
@@ -89,9 +90,10 @@ public class BoardViewController {
     /*수정페이지*/
     @GetMapping("/{boardId}/edit")
     public String boardEditPage(@PathVariable Long boardId,
-                                @AuthenticationPrincipal UserAuth userAuth,
+                                @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                 Model model) {
-        model.addAttribute("board", boardService.getOneBoard(boardId, userAuth));
+        User user = customUserDetails.getUser();
+        model.addAttribute("board", boardService.getOneBoard(boardId, user));
         return "board/edit";
     }
 }
