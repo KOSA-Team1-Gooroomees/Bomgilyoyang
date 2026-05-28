@@ -161,38 +161,6 @@
                             <div th:id="'reply-view-' + ${reply.replyId}">
                                 <p class="text-sm text-gray-700" th:text="${reply.content}"></p>
                             </div>
-
-                            <!-- 수정 모드 (기본 숨김) -->
-                            <div th:id="'reply-edit-' + ${reply.replyId}" style="display:none;" class="flex gap-2 mt-1">
-                                <input type="text"
-                                       th:id="'reply-input-' + ${reply.replyId}"
-                                       th:value="${reply.content}"
-                                       class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-mid"/>
-                                <button th:data-reply-id="${reply.replyId}"
-                                        onclick="submitEditReply(this.dataset.replyId)"
-                                        class="px-3 py-1.5 bg-primary text-white text-xs rounded-lg border-0 cursor-pointer">완료</button>
-                                <button th:onclick="|cancelEdit(${reply.replyId})|"
-                                        class="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs rounded-lg border-0 cursor-pointer">취소</button>
-                            </div>
-                        </div>
-
-                        <!-- 본인 댓글만 ⋮ 메뉴 -->
-                        <div th:if="${reply.userId == currentUserId}" class="relative flex-shrink-0">
-                            <button th:data-reply-id="${reply.replyId}"
-                                    onclick="toggleMenu(this.dataset.replyId)"
-                                    class="text-gray-400 hover:text-gray-600 text-lg border-0 bg-transparent cursor-pointer px-1">⋮</button>
-                            <div th:id="'menu-' + ${reply.replyId}"
-                                 style="display:none;"
-                                 class="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-md z-10 min-w-[80px]">
-                                <!-- 수정 후 -->
-                                <button th:data-reply-id="${reply.replyId}"
-                                        th:data-content="${reply.content}"
-                                        onclick="enableEditMode(this.dataset.replyId, this.dataset.content)"
-                                        class="w-full px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 border-0 bg-transparent cursor-pointer text-left">수정</button>
-                                <button th:data-reply-id="${reply.replyId}"
-                                        onclick="deleteReply(this.dataset.replyId)"
-                                        class="w-full px-4 py-2 text-xs text-red-500 hover:bg-red-50 border-0 bg-transparent cursor-pointer text-left">삭제</button>
-                            </div>
                         </div>
                     </div>
 
@@ -280,61 +248,6 @@
             else alert('삭제에 실패했습니다.');
         });
     }
-
-    // 댓글 ⋮ 메뉴 토글
-    function toggleMenu(replyId) {
-        const menu = document.getElementById(`menu-${replyId}`);
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-    }
-
-    // 댓글 수정 모드 진입
-    function enableEditMode(replyId, content) {
-        document.getElementById(`menu-${replyId}`).style.display = 'none';
-        document.getElementById(`reply-view-${replyId}`).style.display = 'none';
-        document.getElementById(`reply-edit-${replyId}`).style.display = 'flex';
-        document.getElementById(`reply-input-${replyId}`).value = content;
-    }
-
-    // 댓글 수정 취소
-    function cancelEdit(replyId) {
-        document.getElementById(`reply-view-${replyId}`).style.display = 'block';
-        document.getElementById(`reply-edit-${replyId}`).style.display = 'none';
-    }
-
-    // 댓글 수정 완료
-    function submitEditReply(replyId) {
-        const content = document.getElementById(`reply-input-${replyId}`).value.trim();
-        if (!content) { alert('내용을 입력해주세요.'); return; }
-        fetch(`/api/boards/${boardId}/replies/${replyId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',  // ← 변경
-            body: JSON.stringify({ content })
-        }).then(res => {
-            if (res.ok) location.reload();
-            else alert('수정에 실패했습니다.');
-        });
-    }
-
-    // 댓글 삭제
-    function deleteReply(replyId) {
-        document.getElementById(`menu-${replyId}`).style.display = 'none';
-        if (!confirm('댓글을 삭제하시겠습니까?')) return;
-        fetch(`/api/boards/${boardId}/replies/${replyId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        }).then(res => {
-            if (res.ok) location.reload();
-            else alert('삭제에 실패했습니다.');
-        });
-    }
-
-    // 메뉴 외부 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('[id^="menu-"]') && !e.target.closest('button[onclick^="toggleMenu"]')) {
-            document.querySelectorAll('[id^="menu-"]').forEach(m => m.style.display = 'none');
-        }
-    });
 </script>
 </body>
 </html>
