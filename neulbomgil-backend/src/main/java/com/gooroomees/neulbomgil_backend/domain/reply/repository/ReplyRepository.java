@@ -10,5 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
     Page<Reply> findByBoard_Boardid(Long boardId, Pageable pageable);
     long countByBoard(Board board);
+    void deleteByBoard(Board board); //댓글 먼저 삭제 후 게시글 삭제
     Long countByUser(User user);
 }

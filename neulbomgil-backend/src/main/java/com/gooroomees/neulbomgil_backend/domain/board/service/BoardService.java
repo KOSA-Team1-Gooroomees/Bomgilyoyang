@@ -36,6 +36,7 @@ public class BoardService {
     }
 
     // 댓글 수를 포함한 BoardResponse 변환
+    // 댓글 수 포함 DTO 변환 (목록용)
     private BoardResponseDTO toResponse(Board board) {
         long replyCount = replyRepository.countByBoard(board);
         return new BoardResponseDTO(board, replyCount);
@@ -45,7 +46,7 @@ public class BoardService {
     public Page<BoardResponseDTO> getAllBoards(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
         return boardRepository.findAll(pageable)
-                .map(this::toResponse); //.map(BoardResponseDTO::new);
+                .map(this::toResponse);
     }
 
     // 조회수 높은순
@@ -96,13 +97,16 @@ public class BoardService {
         board.update(dto.getTitle(), dto.getContent());
     }
 
-    // 글 삭제
+    // 변경 후 — 좋아요 삭제 후 댓글 삭제 후 게시글 삭제
     @Transactional
     public void deleteBoard(Long boardId, User user) {
         Board board = findBoard(boardId);
         board.validateOwner(user);
-        boardRepository.deleteById(boardId);
+        boardLikeRepository.deleteByBoard(board);  // ← 좋아요 먼저 삭제
+        replyRepository.deleteByBoard(board);       // 댓글 삭제
+        boardRepository.deleteById(boardId);        // 게시글 삭제
     }
+
     // 좋아요 토글 (눌렀으면 취소, 안 눌렀으면 추가)
     @Transactional
     public boolean toggleLike(Long boardId, User user) {

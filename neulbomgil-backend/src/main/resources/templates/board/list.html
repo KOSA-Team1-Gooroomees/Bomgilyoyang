@@ -21,7 +21,6 @@
 <div class="relative max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5 ">
 
     <!-- SIDEBAR -->
-
     <aside class="flex flex-col gap-4 bg-bg-soft">
         <!-- 배너 -->
         <div class="bg-[#a8c5b5] rounded-xl p-5 relative overflow-hidden min-h-[160px]">
@@ -49,12 +48,23 @@
         <div class="border border-gray-200 rounded-xl p-4"  style="box-shadow:0 4px 6px rgba(0,0,0,0.22); background: rgba(255,255,255,0.35);">
             <p class="text-sm font-bold mb-1.5">도움이 필요하신가요?</p>
             <p class="text-xs text-gray-500 leading-relaxed mb-3">관리자와 1:1 채팅으로<br/>빠르게 문의해보세요.</p>
-            <button type="button" id="chatOpenBtn" class="w-full py-2 bg-[#79a9ba] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
+            <div class="relative">
+            <button sec:authorize="isAnonymous()"
+                    onclick="requireLogin()"
+                    class="w-full py-2 bg-[#79a9ba] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
                 채팅하기
             </button>
+            <button sec:authorize="isAuthenticated()"
+               type="button" id="chatOpenBtn"
+             class="w-full py-2 bg-[#79a9ba] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
+                채팅하기
+                </button>
+
+
             <div
                     id="chatUnreadDot"
                     class="absolute -right-1 -top-1 hidden h-3 w-3 rounded-full bg-red-500">
+            </div>
             </div>
         </div>
     </aside>
@@ -134,8 +144,14 @@
                           th:text="'[' + ${board.replyCount} + ']'"></span>
                 </td>
                 <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.name}"></td>
-                <td class="py-3.5 px-2 text-xs text-gray-400 text-center"
-                    th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}"></td>
+
+                <!-- createdAt 포맷 — #temporals 대신 문자열 변환 사용 -->
+                <td class="py-3.5 px-2 text-xs text-gray-400 text-center">
+                        <span th:if="${board.createdAt != null}"
+                              th:text="${#strings.substring(board.createdAt.toString(), 0, 10).replace('-', '.')}"></span>
+                    <span th:if="${board.createdAt == null}">-</span>
+                </td>
+
                 <td class="py-3.5 px-2 text-sm text-center text-gray-600" th:text="${board.cnt}"></td>
             </tr>
             <tr th:if="${boards.content.empty}">
@@ -199,7 +215,6 @@
     }
 </script>
 <script>
-
     const chatOpenBtn = document.getElementById("chatOpenBtn");
     const chatCloseBtn = document.getElementById("chatCloseBtn");
     const chatPanel = document.getElementById("chatPanel");
@@ -207,22 +222,6 @@
 
     chatOpenBtn.addEventListener("click", async () => {
 
-        /*
-            로그인 여부 확인
-        */
-        const authCheck = await fetch("/chatrooms/unread");
-
-        /*
-            토큰 만료 / 인증 실패
-        */
-        if(authCheck.status === 401){
-
-            alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-
-            window.location.href = "/login";
-
-            return;
-        }
 
         /*
             채팅창 열기
@@ -270,7 +269,7 @@
             unreadDot.classList.add("hidden");
         }
     }
-
+    checkUnreadChat();
 </script>
 </body>
 </html>

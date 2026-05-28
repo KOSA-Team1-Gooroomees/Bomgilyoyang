@@ -11,11 +11,20 @@
                box-shadow:0 2px 8px rgba(0,0,0,0.15);">
 
     <!-- 왼쪽 -->
-    <a th:href="@{/}" class="flex items-center" style="gap:10px; text-decoration:none;">
-      <img th:src="@{/images/icons/main-icon.png}" alt="로고"
-           class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
-      <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
-    </a>
+    <th:block sec:authorize="hasAuthority('ADMIN')">
+      <a th:href="@{/admin}" class="flex items-center" style="gap:10px; text-decoration:none;">
+        <img th:src="@{/images/icons/main-icon.png}" alt="로고"
+             class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
+        <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
+      </a>
+    </th:block>
+    <th:block sec:authorize="hasAuthority('USER') or isAnonymous()">
+      <a th:href="@{/}" class="flex items-center" style="gap:10px; text-decoration:none;">
+        <img th:src="@{/images/icons/main-icon.png}" alt="로고"
+             class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
+        <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
+      </a>
+    </th:block>
 
     <!-- 가운데 메뉴 -->
     <nav class="flex items-center" style="gap:50px;" sec:authorize="hasAuthority('USER') or isAnonymous()">

@@ -20,155 +20,10 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <style>
-
-        body {
-            margin: 0;
-            background-color: var(--color-popup);
-            font-family: var(--font-eulyoo);
-        }
-
-        .chat-container {
-            width: 100%;
-            height: 100vh;
-            box-sizing: border-box;
-            background-color: var(--color-popup);
-
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message-box {
-            flex: 8;
-
-            height: 400px;
-            overflow-y: auto;
-            padding: 10px;
-
-            background-color: transparent;
-        }
-
-
-        .input-box {
-            flex: 2;
-
-            display: flex;
-            flex-direction: column;
-
-            background-color: #ffffff;
-
-        }
-
-        .message {
-            display: inline-flex;
-            flex-direction: column;
-
-
-            padding: 12px 14px;
-            border-radius: var(--radius-main);
-
-            width: fit-content;
-            max-width: 100%;
-
-            line-height: 1.4;
-
-            white-space: pre-wrap;
-        }
-
-        .message-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            margin : 5px;
-        }
-        .my-wrapper .message-row {
-            justify-content: flex-end;
-        }
-        .other-wrapper .message-row {
-            justify-content: flex-start;
-        }
-
-        .message-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-
-            width: 100%;
-            max-width: 100%;
-        }
-
-
-        .message-time {
-            font-size: 11px;
-            color: rgba(0,0,0,0.5);
-
-            margin-bottom: 4px;
-
-            white-space: nowrap;
-        }
-
-        .my-message {
-            background-color: var(--color-my-chat);
-            text-align: left;
-        }
-
-        .other-message {
-            background-color: #ffffff;
-            text-align: left;
-        }
-
-
-
-        .input-box textarea {
-            flex: 1;
-            min-width: 0;
-
-            width: 100%;
-
-            padding: 10px;
-
-            border: none;
-            outline: none;
-
-            font-family: var(--font-eulyoo);
-            border-radius: var(--radius-main);
-            background-color: #ffffff;
-        }
-
-        .input-box button {
-            align-self: flex-end;
-            padding: 2px 2px;
-            margin: 10px 10px;
-            border: none;
-            border-radius: 10px;
-            background-color: var(--color-screen-button);
-            color: white;
-            font-family: var(--font-eulyoo);
-            cursor: pointer;
-        }
-
-        .profile-image {
-            width: 36px;
-            height: 36px;
-
-            border-radius: 50%;
-
-            object-fit: cover;
-
-            flex-shrink: 0;
-        }
-
-        .input-box button:hover {
-            background-color: var(--color-primary-hover);
-        }
-
-
-
-    </style>
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
 </head>
 <body>
-
+<!-- 채팅 전체 레이아웃 -->
 <div class="chat-container">
 
     <!--
@@ -189,6 +44,7 @@
        - 다르면 상대방 메시지 스타일 적용
    -->
         <div th:each="msg : ${messages}"
+             th:attr="data-date=${#temporals.format(msg.createdAt(), 'yyyy.MM.dd')}"
              th:class="${msg.senderId() == userId}
      ? 'message-wrapper my-wrapper'
      : 'message-wrapper other-wrapper'">
@@ -196,8 +52,7 @@
 
 
             <!-- 내 메시지 -->
-            <div th:if="${msg.senderId() == userId}"
-                 class="message-row">
+            <div th:if="${msg.senderId() == userId}" class="message-row">
 
                 <small class="message-time"
                        th:text="${#temporals.format(msg.createdAt(), 'a HH:mm')}">
@@ -211,24 +66,23 @@
 
 
             <!-- 상대 메시지 -->
-            <div th:if="${msg.senderId() != userId}"
-                 class="message-row">
+            <div th:if="${msg.senderId() != userId}" class="message-row">
 
-                <!-- 관리자 프로필 이미지 -->
+                <!-- 상대방 프로필 이미지 -->
                 <img th:src="@{/images/characters/rumi-face.png}"
-                     alt="관리자"
+                     alt="상대방 프로필"
                      class="profile-image">
                 <div>
-                <!-- 상대방 이름 -->
+                    <!-- 상대방 이름 -->
                     <div
                             th:if="${msg.senderId() != userId}"
                             class="sender-name"
                             th:text="${chatPartnerName}">
                         관리자
                     </div>
-                <div class="message other-message">
-                    <div th:text="${msg.message()}"></div>
-                </div>
+                    <div class="message other-message">
+                        <div th:text="${msg.message()}"></div>
+                    </div>
                 </div>
                 <small class="message-time"
                        th:text="${#temporals.format(msg.createdAt(), 'a HH:mm')}">
@@ -236,15 +90,15 @@
             </div>
 
         </div>
-</div>
+    </div>
 
-<!-- 메시지 입력 영역 -->
-<div class="input-box">
-    <textarea id="messageInput" placeholder="메시지를 입력하세요"></textarea>
+    <!-- 메시지 입력 영역 -->
+    <div class="input-box">
+        <textarea id="messageInput" placeholder="메시지를 입력하세요"></textarea>
 
-    <!-- 버튼 클릭 시 sendMessage() 실행 -->
-    <button type="button" onclick="sendMessage()">전송</button>
-</div>
+        <!-- 버튼 클릭 시 sendMessage() 실행 -->
+        <button type="button" onclick="sendMessage()">전송</button>
+    </div>
 </div>
 
 <!--
@@ -253,124 +107,62 @@
 -->
 <script th:inline="javascript">
 
-    /*
-        서버에서 ModelAndView로 넘긴 roomId, userId를 JavaScript 변수로 저장
-
-        예:
-        mv.addObject("roomId", roomId);
-        mv.addObject("userId", userId);
-    */
+    // roomId, userId 저장
     const roomId = [[${roomId}]];
     const userId = [[${userId}]];
 
-    /*
-        STOMP 클라이언트 객체를 저장할 변수
-        - 연결 전에는 null
-        - connect() 실행 후 stompClient에 연결 객체 저장
-    */
+    // 마지막 날짜 저장용
+    let lastMessageDate = null;
+
+    // STOMP 클라이언트
     let stompClient = null;
 
-    /*
-        WebSocket 연결 함수
-
-        사용 상황:
-        - chat.html이 처음 로드될 때 실행
-        - 서버의 /ws/chat 엔드포인트로 WebSocket 연결 시도
-    */
+    // WebSocket 연결
     function connect() {
 
-        /*
-            SockJS 연결 객체 생성
-            - Spring WebSocketConfig에서 설정한 endpoint와 맞아야 함
-            - 예: registry.addEndpoint("/ws/chat").withSockJS();
-        */
+        // SockJS 연결 생성
         const socket = new SockJS("/ws/chat");
 
-        /*
-            SockJS 객체를 STOMP 방식으로 감싸기
-            - 이후 send(), subscribe() 사용 가능
-        */
+        // STOMP 연결
         stompClient = Stomp.over(socket);
 
-        /*
-            서버와 STOMP 연결
-            - 첫 번째 인자 {}는 헤더
-            - 연결 성공 시 콜백 함수 실행
-        */
+        // 서버 연결 및 구독
         stompClient.connect({}, function () {
             console.log("WebSocket 연결 완료");
 
-            /*
-                채팅방 구독
-                - 서버가 /sub/chatrooms/{roomId}로 메시지를 보내면 여기서 받음
-                - 같은 roomId를 구독한 사용자들이 실시간 메시지를 받게 됨
-            */
+            // 채팅방 구독
             stompClient.subscribe("/sub/chatrooms/" + roomId, function (message) {
 
-                /*
-                    서버에서 받은 메시지는 문자열 JSON 형태
-                    - JSON.parse()로 JavaScript 객체로 변환
-                */
+                // 메시지 JSON 변환
                 const response = JSON.parse(message.body);
 
-                /*
-                    받은 메시지를 화면에 추가
-                */
+                // 화면 출력
                 showMessage(response);
             });
         });
     }
 
-    /*
-        메시지 전송 함수
-
-        사용 상황:
-        - 사용자가 입력창에 메시지를 쓰고 전송 버튼을 눌렀을 때 실행
-        - 서버의 @MessageMapping으로 메시지를 보냄
-    */
+    // 메시지 전송
     function sendMessage() {
 
-        /*
-            메시지 입력 input 요소 가져오기
-        */
+        // textarea 가져오기
         const input = document.getElementById("messageInput");
 
-        /*
-            입력값 앞뒤 공백 제거
-        */
+        // 공백 제거
         const message = input.value.trim();
 
-        /*
-            빈 문자열이면 전송하지 않음
-        */
+        // 빈 메시지 차단
         if (message === "") {
             return;
         }
 
-        /*
-            WebSocket 연결이 아직 안 된 상태면 전송 방지
-            - 연결 전에 send()를 호출하면 오류가 날 수 있음
-        */
+        // 연결 여부 확인
         if (!stompClient || !stompClient.connected) {
             alert("채팅 서버에 아직 연결되지 않았습니다.");
             return;
         }
 
-        /*
-            STOMP 메시지 전송
-
-            destination:
-            - 클라이언트가 보내는 주소
-            - WebSocketConfig의 setApplicationDestinationPrefixes("/pub")와 연결됨
-
-            서버에서는:
-            @MessageMapping("/chatrooms/{roomId}/messages")
-            로 받음
-
-            즉 실제 흐름:
-            /pub/chatrooms/1/messages
-            → @MessageMapping("/chatrooms/{roomId}/messages")
-        */
+        // 메시지 전송
         stompClient.send(
             "/pub/chatrooms/" + roomId + "/messages",
 
@@ -381,36 +173,32 @@
             */
             { userId: userId },
 
-            /*
-                body
-                - 서버로 보낼 실제 메시지 데이터
-                - ChatRequestDto의 message 필드와 매핑됨
-            */
             JSON.stringify({
                 message: message
             })
         );
 
-        /*
-            전송 후 입력창 비우기
-        */
+        // 입력창 초기화
         input.value = "";
     }
 
-    /*
-        실시간으로 받은 메시지를 화면에 추가하는 함수
-
-        사용 상황:
-        - WebSocket subscribe로 새 메시지를 받았을 때 실행
-        - 페이지 새로고침 없이 메시지를 화면에 추가
-    */
+    // 실시간 메시지 출력
     function showMessage(msg) {
 
-        /*
-            메시지 출력 영역 가져오기
-        */
+        // 메시지 영역
         const messageBox = document.getElementById("messageBox");
+        // 현재 메시지 날짜
+        const currentMessageDate = formatDay(msg.createdAt);
 
+        // 날짜 변경 시 divider 추가
+        if (lastMessageDate !== currentMessageDate) {
+
+            const divider = createDateDivider(currentMessageDate);
+
+            messageBox.appendChild(divider);
+
+            lastMessageDate = currentMessageDate;
+        }
         /*
             메시지 전체 wrapper 생성
             - 정렬(left/right) 용도
@@ -425,82 +213,109 @@
         const row = document.createElement("div");
         row.classList.add("message-row");
 
-        /*
-            실제 메시지 말풍선 생성
-        */
+        // 말풍선
         const div = document.createElement("div");
-
-        /*
-            모든 메시지 공통 class
-        */
         div.classList.add("message");
 
-        /*
-            시간 표시 요소 생성
-        */
+        // 시간
         const time = document.createElement("small");
         time.classList.add("message-time");
         time.textContent = formatDate(msg.createdAt);
 
-        /*
-            senderId와 현재 userId 비교
-            - 내 메시지 / 상대 메시지 구분
-        */
+        // 내 메시지
         if (Number(msg.senderId) === Number(userId)) {
 
             wrapper.classList.add("my-wrapper");
             div.classList.add("my-message");
 
-            /*
-                내 메시지는
-                시간 → 말풍선 순서
-            */
             row.appendChild(time);
             row.appendChild(div);
 
         } else {
 
+            /*
+              상대 메시지는
+              말풍선 → 시간 순서
+          */
             wrapper.classList.add("other-wrapper");
             div.classList.add("other-message");
 
-            /*
-                상대 메시지는
-                말풍선 → 시간 순서
-            */
             row.appendChild(div);
             row.appendChild(time);
         }
 
-        /*
-            메시지 내용 삽입
-        */
+        // 메시지 내용 추가
         div.innerHTML = `
         <div>${msg.message}</div>
     `;
 
-        /*
-            row를 wrapper 안에 추가
-        */
+        // wrapper 추가
         wrapper.appendChild(row);
 
-        /*
-            최종적으로 messageBox에 추가
-        */
+        // 화면 추가
         messageBox.appendChild(wrapper);
 
-        /*
-            스크롤 맨 아래로 이동
-        */
+        // 스크롤 맨 아래 이동
         messageBox.scrollTop = messageBox.scrollHeight;
     }
 
-    /*
-        날짜 포맷 함수
+    // 날짜 포맷
+    function formatDay(dateTime) {
 
-        사용 상황:
-        - 서버에서 LocalDateTime이 "2026-05-20T17:30:00" 형태로 올 때
-        - 화면에는 "17:30" 형태로 보여주기 위함
-    */
+        if (!dateTime) return "";
+
+        const date = new Date(dateTime);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}.${month}.${day}`;
+    }
+
+    // 기존 메시지 날짜선 초기화
+    function initializeDateDividers() {
+
+        const messageBox = document.getElementById("messageBox");
+
+        const wrappers = messageBox.querySelectorAll(".message-wrapper");
+
+        let previousDate = null;
+
+        wrappers.forEach(wrapper => {
+
+            const currentDate = wrapper.dataset.date;
+
+            // 날짜 변경 시 divider 추가
+            if (previousDate !== currentDate) {
+
+                const divider = createDateDivider(currentDate);
+
+                messageBox.insertBefore(divider, wrapper);
+
+                previousDate = currentDate;
+            }
+
+        });
+        // 마지막 날짜 저장
+        lastMessageDate = previousDate;
+    }
+
+    // 날짜 divider 생성
+    function createDateDivider(dateText) {
+
+        const divider = document.createElement("div");
+
+        divider.classList.add("date-divider");
+
+        divider.innerHTML = `
+        <span>${dateText}</span>
+    `;
+
+        return divider;
+    }
+
+    // 시간 포맷
     function formatDate(dateTime) {
 
         if (!dateTime) return "";
@@ -520,22 +335,12 @@
         return `${period} ${String(hours).padStart(2, "0")}:${minutes}`;
     }
 
-    /*
-        페이지가 로드되면 WebSocket 연결 시작
-
-        iframe 안에서 chat.html이 열리면 이 코드가 실행되고,
-        그 시점에 WebSocket 연결이 생성됨
-    */
+    // 초기 날짜선 생성
+    initializeDateDividers();
+    // WebSocket 연결
     connect();
 
-    /*
-        WebSocket 연결 종료 함수
-
-        사용 상황:
-        - 사용자가 채팅창을 닫거나
-        - iframe src가 비워지거나
-        - 페이지를 이동/새로고침해서 chat.html이 unload될 때
-    */
+    // WebSocket 연결 종료
     function disconnect() {
         if (stompClient !== null && stompClient.connected) {
             stompClient.disconnect(() => {
@@ -544,17 +349,7 @@
         }
     }
 
-    /*
-        페이지가 unload되기 직전에 WebSocket 연결 종료
-
-        사용 상황:
-        - iframe이 닫힐 때
-        - iframe.src = "" 처리될 때
-        - 브라우저 새로고침/페이지 이동 시
-
-        목적:
-        - 연결을 명시적으로 종료해서 불필요한 WebSocket 연결을 남기지 않기 위함
-    */
+    // 페이지 종료 시 연결 해제
     window.addEventListener("beforeunload", function () {
         disconnect();
     });
