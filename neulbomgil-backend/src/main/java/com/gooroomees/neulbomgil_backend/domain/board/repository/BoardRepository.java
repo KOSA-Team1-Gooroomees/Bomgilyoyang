@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findByTitleContainingOrContentContaining(
@@ -24,4 +27,23 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAllOrderByReplyCount(Pageable pageable);
 
     Long countByUser(User user);
+    // 최신순 사용할 JOIN FETCH
+    @Query(value = "SELECT b FROM Board b JOIN FETCH b.user ORDER BY b.createdAt DESC",
+            countQuery = "SELECT COUNT(b) FROM Board b")
+    Page<Board> findAllWithUserOrderByCreatedAt(Pageable pageable);
+
+    // 조회수순 사용할 JOIN FETCH
+    @Query(value = "SELECT b FROM Board b JOIN FETCH b.user ORDER BY b.cnt DESC",
+            countQuery = "SELECT COUNT(b) FROM Board b")
+    Page<Board> findAllWithUserOrderByCnt(Pageable pageable);
+
+    // 검색도 동일하게
+    @Query(value = "SELECT b FROM Board b JOIN FETCH b.user WHERE b.title LIKE %:keyword% OR b.content LIKE %:keyword%",
+            countQuery = "SELECT COUNT(b) FROM Board b WHERE b.title LIKE %:keyword% OR b.content LIKE %:keyword%")
+    Page<Board> findByKeywordWithUser(@Param("keyword") String keyword, Pageable pageable);
+
+    // BoardRepository 추가
+    @Query("SELECT b FROM Board b JOIN FETCH b.user WHERE b.boardid = :boardId")
+    Optional<Board> findByIdWithUser(@Param("boardId") Long boardId);
+
 }

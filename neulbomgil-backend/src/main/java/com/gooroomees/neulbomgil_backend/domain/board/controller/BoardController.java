@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
@@ -53,7 +54,8 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = (userDetails != null) ? userDetails.getUser() : null; // 비로그인 허용
         return ResponseEntity.ok(boardService.getOneBoard(boardId, user));
     }
 
@@ -73,8 +75,8 @@ public class BoardController {
     @PostMapping("/inserts")
     public ResponseEntity<Void> createBoard(
             @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal User user)
-    {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
         boardService.createBoard(dto, user);
         return ResponseEntity.ok().build();
     }
@@ -83,11 +85,12 @@ public class BoardController {
     @Operation(summary = "게시글 수정",
             description = "본인이 작성한 게시글을 수정합니다. 작성자 본인만 수정 가능합니다.")
     @PutMapping("/{boardId}")
-    public ResponseEntity<Void> updateBoard(
+    public ResponseEntity<?> updateBoard(
             @PathVariable Long boardId,
             @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal User user)
-    {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {  // ← 변경
+
+        User user = userDetails.getUser();  // ← User 꺼내기
         boardService.updateBoard(dto, boardId, user);
         return ResponseEntity.ok().build();
     }
@@ -98,8 +101,8 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal User user)
-    {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
         boardService.deleteBoard(boardId, user);
         return ResponseEntity.noContent().build();
     }
@@ -108,7 +111,8 @@ public class BoardController {
     @PostMapping("/{boardId}/likes")
     public ResponseEntity<Map<String, Object>> toggleLike(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
         boolean liked = boardService.toggleLike(boardId, user);
         return ResponseEntity.ok(Map.of("liked", liked));
     }

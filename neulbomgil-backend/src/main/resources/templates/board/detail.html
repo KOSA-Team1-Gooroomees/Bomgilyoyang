@@ -228,7 +228,6 @@
 
 <script th:inline="javascript">
     const boardId = /*[[${board.boardid}]]*/ null;
-    const token = localStorage.getItem('token');
 
     function requireLogin() {
         alert('로그인이 필요한 서비스입니다.');
@@ -239,7 +238,7 @@
     function toggleLike(boardId) {
         fetch(`/api/boards/${boardId}/likes`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         })
             .then(res => res.json())
             .then(data => {
@@ -255,17 +254,14 @@
                 count.textContent = parseInt(count.textContent) + (data.liked ? 1 : -1);
             });
     }
-
-    // 댓글 등록
+    //댓글 등록
     function submitReply() {
         const content = document.getElementById('replyInput').value.trim();
         if (!content) { alert('댓글을 입력해주세요.'); return; }
         fetch(`/api/boards/${boardId}/replies`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',  // ← 변경
             body: JSON.stringify({ content })
         }).then(res => {
             if (res.ok) location.reload();
@@ -278,7 +274,7 @@
         if (!confirm('게시글을 삭제하시겠습니까?')) return;
         fetch(`/api/boards/${boardId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         }).then(res => {
             if (res.ok) { alert('삭제되었습니다.'); location.href = '/boards'; }
             else alert('삭제에 실패했습니다.');
@@ -311,10 +307,8 @@
         if (!content) { alert('내용을 입력해주세요.'); return; }
         fetch(`/api/boards/${boardId}/replies/${replyId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',  // ← 변경
             body: JSON.stringify({ content })
         }).then(res => {
             if (res.ok) location.reload();
@@ -328,7 +322,7 @@
         if (!confirm('댓글을 삭제하시겠습니까?')) return;
         fetch(`/api/boards/${boardId}/replies/${replyId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         }).then(res => {
             if (res.ok) location.reload();
             else alert('삭제에 실패했습니다.');

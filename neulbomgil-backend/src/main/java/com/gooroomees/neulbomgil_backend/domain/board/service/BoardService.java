@@ -30,9 +30,9 @@ public class BoardService {
 
     //게시글 없으면 예외처리
     // 게시글 존재 여부 확인
-    private Board findBoard(Long boardId){
-        return boardRepository.findById(boardId)
-                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    private Board findBoard(Long boardId) {
+        return boardRepository.findByIdWithUser(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
     }
 
     // 댓글 수를 포함한 BoardResponse 변환
@@ -44,16 +44,16 @@ public class BoardService {
 
     // 최신순 (디폴트)
     public Page<BoardResponseDTO> getAllBoards(int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return boardRepository.findAll(pageable)
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);  // 정렬은 쿼리에 포함
+        return boardRepository.findAllWithUserOrderByCreatedAt(pageable)
                 .map(this::toResponse);
     }
 
     // 조회수 높은순
     public Page<BoardResponseDTO> getBoardsByViews(int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("cnt").descending());
-        return boardRepository.findAll(pageable)
-                .map(this::toResponse); //.map(BoardResponseDTO::new);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        return boardRepository.findAllWithUserOrderByCnt(pageable)
+                .map(this::toResponse);
     }
     // 댓글 많은순
     public Page<BoardResponseDTO> getBoardsReplyCount(int page) {
@@ -75,10 +75,10 @@ public class BoardService {
     }
 
     //검색어 입력, 관련 글 가져오기
-    // 검색
+// 검색
     public Page<BoardResponseDTO> searchBoard(String keyword, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        return boardRepository.findByKeywordWithUser(keyword, pageable)
                 .map(this::toResponse);
     }
 

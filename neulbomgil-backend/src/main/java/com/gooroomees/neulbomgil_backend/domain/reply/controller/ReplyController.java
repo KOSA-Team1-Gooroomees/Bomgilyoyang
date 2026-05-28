@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.reply.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.reply.dto.ReplyResponseDTO;
@@ -35,7 +36,8 @@ public class ReplyController {
     public ResponseEntity<Void> createReply(
             @PathVariable Long boardId,
             @RequestBody ReplyRequestDTO dto,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();  // ← 세션에서 꺼내야 함
         replyService.createReply(boardId, dto, user);
         return ResponseEntity.ok().build();
     }

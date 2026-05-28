@@ -65,10 +65,11 @@ public class BoardViewController {
     @GetMapping("/{boardId}")
     public String boardDetail(@PathVariable Long boardId,
                               @RequestParam(defaultValue = "0") int replyPage,
-                              @AuthenticationPrincipal User userAuth,
+                              @AuthenticationPrincipal CustomUserDetails customUserDetails,
                               Model model) {
+        User user = customUserDetails.getUser();
         // 게시글 (조회수 +1, likedByMe 포함)
-        BoardResponseDTO board = boardService.getOneBoard(boardId, userAuth);
+        BoardResponseDTO board = boardService.getOneBoard(boardId, user);
         model.addAttribute("board", board);
 
         // 댓글 목록
@@ -76,8 +77,7 @@ public class BoardViewController {
 
         // 현재 로그인 유저 ID (수정/삭제 버튼 표시 조건)
         model.addAttribute("currentUserId",
-                userAuth != null ? userAuth.getUserId() : null);
-
+                user != null ? user.getUserId() : null);
         return "board/detail";
     }
 

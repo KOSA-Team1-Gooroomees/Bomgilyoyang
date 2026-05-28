@@ -29,15 +29,16 @@ public class ReplyService {
                 -> new IllegalArgumentException("존재하지 않은 게시글입니다."));
     }
     //존재하지 않는 댓글
-    private Reply findReply(Long replyId){
-        return replyRepository.findById(replyId).orElseThrow(()
-                -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+    private Reply findReply(Long replyId) {
+        return replyRepository.findByIdWithUser(replyId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
     }
 
-    //댓글 목록 조회
+    // 댓글 목록 조회
     public Page<ReplyResponseDTO> getReplies(Long boardId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return replyRepository.findByBoard_Boardid(boardId, pageable).map(ReplyResponseDTO::new);
+        return replyRepository.findByBoard_BoardidWithUser(boardId, pageable)
+                .map(ReplyResponseDTO::new);
     }
 
     //댓글 작성
