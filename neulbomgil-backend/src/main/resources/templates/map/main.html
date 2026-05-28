@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>봄길요양 - CareMap</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
-
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <script type="text/javascript"
             th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey='+${kakaoMapApiKey}+'&libraries=services'"></script>
 </head>
@@ -60,9 +61,16 @@
                     </button>
                 </div>
                 <div class="flex items-center mt-2.5 justify-between">
-                    <div class="flex items-center space-x-1">
-                        <div id="detailStars" class="flex items-center text-yellow-400"></div>
-                        <span id="detailScore" class="text-sm font-bold text-gray-700 ml-1"></span>
+                    <div class="relative flex items-center space-x-1 group cursor-pointer">
+                        <img src="/images/icons/score-true.png" alt="점수 아이콘" class="w-5 h-5 object-contain"/>
+                        <span id="detailScore" class="text-sm font-bold text-gray-700 ml-1">0.0</span>
+                        <div class="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col items-start z-30 w-52">
+                            <div class="bg-gray-800 text-white text-[11px] font-medium px-2.5 py-2 rounded shadow-md leading-normal text-left break-keep">
+                                <strong class="text-white block mb-1">시설 점수란?</strong>
+                                인근 공원의 개수와 총면적을 종합적으로 분석하여 산출한 공원 접근성 점수입니다. (1~5점)
+                            </div>
+                            <div class="w-2 h-2 bg-gray-800 rotate-45 -mt-1 ml-4"></div>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2 text-[12px]">
                         <span class="flex items-center gap-1 font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">정원 <span

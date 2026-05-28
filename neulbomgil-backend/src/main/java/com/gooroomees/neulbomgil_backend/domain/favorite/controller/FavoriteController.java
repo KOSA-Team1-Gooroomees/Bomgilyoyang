@@ -29,6 +29,9 @@ public class FavoriteController {
     public ResponseEntity<Long> addFavorite(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody FavoriteRequest request) {
+        if (customUserDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
         User user = customUserDetails.getUser();
         return ResponseEntity.ok(favoriteService.saveFavorite(user.getUserId(), request));
     }

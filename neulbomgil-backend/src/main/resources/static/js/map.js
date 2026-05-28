@@ -485,7 +485,9 @@ function initEventListeners() {
             }
         } catch (err) {
             console.error(err);
-            alert("즐겨찾기 처리 중 에러 발생");
+            if (confirm("인증 세션이 만료되었거나 로그인 정보가 없습니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                window.location.href = '/login';
+            }
         }
     });
 }
