@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.map.controller.view;
+package com.gooroomees.neulbomgil_backend.domain.map.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
