@@ -102,7 +102,7 @@ public class BoardService {
     public void deleteBoard(Long boardId, User user) {
         Board board = findBoard(boardId);
         board.validateOwner(user);
-        boardLikeRepository.deleteByBoard(board);  // ← 좋아요 먼저 삭제
+        // boardLikeRepository.deleteByBoard(board);  // ← 좋아요 먼저 삭제
         replyRepository.deleteByBoard(board);       // 댓글 삭제
         boardRepository.deleteById(boardId);        // 게시글 삭제
     }

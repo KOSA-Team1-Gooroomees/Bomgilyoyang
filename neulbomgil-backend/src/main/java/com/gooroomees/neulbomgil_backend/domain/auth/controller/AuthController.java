@@ -25,15 +25,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 public class AuthController {
 
-    @Value("${kakao.auth.url}")
-    private String kakaoLoginUrl;
-
     private final AuthService authService;
     private final UserService userService;
 
     @GetMapping("/login")
-    public String loginView(Model model) {
-        model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
+    public String loginView() {
         return "auth/login";
     }
 
@@ -83,7 +79,6 @@ public class AuthController {
         }
 
         model.addAttribute("msg", "계정이 활성화되었습니다.");
-        model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
         return "auth/login";
     }
 

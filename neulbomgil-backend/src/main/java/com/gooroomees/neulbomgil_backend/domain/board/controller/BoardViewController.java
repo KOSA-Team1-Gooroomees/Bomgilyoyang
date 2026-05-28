@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
@@ -89,9 +90,10 @@ public class BoardViewController {
     /*수정페이지*/
     @GetMapping("/{boardId}/edit")
     public String boardEditPage(@PathVariable Long boardId,
-                                @AuthenticationPrincipal UserAuth userAuth,
+                                @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                 Model model) {
-        model.addAttribute("board", boardService.getOneBoard(boardId, userAuth));
+        User user = customUserDetails.getUser();
+        model.addAttribute("board", boardService.getOneBoard(boardId, user));
         return "board/edit";
     }
 }

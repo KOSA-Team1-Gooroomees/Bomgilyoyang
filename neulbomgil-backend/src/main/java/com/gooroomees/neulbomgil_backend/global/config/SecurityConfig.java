@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity // 자바 메소드 단위에서 보안 설정을 적용할 때 사용하는 어노테이션
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -29,6 +31,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/map/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // websocket연결
                         .requestMatchers("/api/auth/**").permitAll()
@@ -47,6 +50,13 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/", true)
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
