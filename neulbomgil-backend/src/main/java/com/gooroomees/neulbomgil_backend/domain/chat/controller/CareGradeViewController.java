@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.chat.controller.view;
+package com.gooroomees.neulbomgil_backend.domain.chat.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

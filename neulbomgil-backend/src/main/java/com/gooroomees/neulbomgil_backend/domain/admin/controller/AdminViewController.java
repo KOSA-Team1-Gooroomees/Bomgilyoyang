@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.admin.controller.view;
+package com.gooroomees.neulbomgil_backend.domain.admin.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.admin.dto.AdminUserResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.admin.service.AdminService;
