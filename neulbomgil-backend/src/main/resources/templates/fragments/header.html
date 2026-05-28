@@ -48,13 +48,13 @@
       <th:block sec:authorize="hasAuthority('USER')">
         <a href="/mypage" class="bg-primary text-white font-bold rounded-xl"
            style="padding:10px 18px; text-decoration:none;">마이페이지</a>
-        <a href="/#" class="bg-primary text-white font-bold rounded-xl"
+        <a href="/logout" class="bg-primary text-white font-bold rounded-xl"
            style="padding:10px 18px; text-decoration:none;">로그아웃</a>
       </th:block>
 
       <!-- 관리자 -->
       <th:block sec:authorize="hasAuthority('ADMIN')">
-        <a href="/#" class="bg-primary text-white font-bold rounded-xl"
+        <a href="/logout" class="bg-primary text-white font-bold rounded-xl"
            style="padding:10px 18px; text-decoration:none;">로그아웃</a>
       </th:block>
 

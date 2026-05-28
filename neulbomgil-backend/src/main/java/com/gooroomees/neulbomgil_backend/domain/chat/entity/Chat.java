@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.entity;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public class Chat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserAuth sender;
+    private User sender;
 
 
     @Column(name = "message", columnDefinition = "TEXT")
@@ -37,7 +37,7 @@ public class Chat {
     private LocalDateTime readAt;
 
     public static Chat create(ChatRoom chatRoom,
-                              UserAuth sender,
+                              User sender,
                               String message) {
 
         Chat chat = new Chat();

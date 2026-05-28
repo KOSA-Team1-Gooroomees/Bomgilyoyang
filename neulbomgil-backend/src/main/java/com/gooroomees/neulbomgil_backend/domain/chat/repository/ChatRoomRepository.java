@@ -1,7 +1,7 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.repository;
 
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.entity.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +17,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 select cr from ChatRoom cr  where cr.user = :user 
 
 """)
-    Optional<ChatRoom> findChatRoom( @Param("user") UserAuth user);
+    Optional<ChatRoom> findChatRoom( @Param("user") User user);
 
     List<ChatRoom> findAllByOrderByLastMessageAtDesc();
 

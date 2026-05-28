@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
 import com.gooroomees.neulbomgil_backend.domain.reply.service.ReplyService;
@@ -64,7 +64,7 @@ public class BoardViewController {
     @GetMapping("/{boardId}")
     public String boardDetail(@PathVariable Long boardId,
                               @RequestParam(defaultValue = "0") int replyPage,
-                              @AuthenticationPrincipal UserAuth userAuth,
+                              @AuthenticationPrincipal User userAuth,
                               Model model) {
         // 게시글 (조회수 +1, likedByMe 포함)
         BoardResponseDTO board = boardService.getOneBoard(boardId, userAuth);

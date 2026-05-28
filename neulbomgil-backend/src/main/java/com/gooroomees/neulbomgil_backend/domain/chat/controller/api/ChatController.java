@@ -1,7 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.controller.api;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
-import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.service.ChatService;
@@ -26,8 +25,8 @@ public class ChatController {
             description = "사용자 채팅방을 생성하거나 기존 채팅방을 반환합니다."
     )
     @PostMapping("/start")
-    public ChatRoomResponseDto startChatRoom(@AuthenticationPrincipal UserAuth userAuth) {
-        return chatService.startChatRoom(userAuth.getUserId());
+    public ChatRoomResponseDto startChatRoom(@AuthenticationPrincipal User user) {
+        return chatService.startChatRoom(user.getUserId());
     }
 
     @Operation(
@@ -35,8 +34,8 @@ public class ChatController {
             description = "특정 채팅방의 메시지 목록을 조회합니다."
     )
     @GetMapping("/{roomId}/message")
-    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId,@AuthenticationPrincipal UserAuth userAuth) {
-        return chatService.getMessageByRoomId(roomId,userAuth.getUserId());
+    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId,@AuthenticationPrincipal User user) {
+        return chatService.getMessageByRoomId(roomId, user.getUserId());
     }
 
     @Operation(
@@ -63,8 +62,8 @@ public class ChatController {
             description = "읽지 않은 채팅 메시지를 읽음 처리합니다."
     )
     @PutMapping("/{roomId}/read")
-    public void readMessages(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth) {
-        chatService.readMessages(roomId, userAuth.getUserId());
+    public void readMessages(@PathVariable Long roomId, @AuthenticationPrincipal User user) {
+        chatService.readMessages(roomId, user.getUserId());
     }
 
     @Operation(
@@ -72,8 +71,8 @@ public class ChatController {
             description = "읽지 않은 채팅 메시지 존재 여부를 반환합니다."
     )
     @GetMapping("/unread")
-    public boolean hasUnreadChats(@AuthenticationPrincipal UserAuth userAuth) {
-       return chatService.hasUnreadChats(userAuth.getUserId());
+    public boolean hasUnreadChats(@AuthenticationPrincipal User user) {
+       return chatService.hasUnreadChats(user.getUserId());
     }
 
 }

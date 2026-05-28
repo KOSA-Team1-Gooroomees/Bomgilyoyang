@@ -1,5 +1,5 @@
 package com.gooroomees.neulbomgil_backend.domain.board.entity;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,7 +18,7 @@ public class Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
-    private UserAuth user;
+    private User user;
 
     private String title;
     private String content;
@@ -32,9 +32,9 @@ public class Board {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    public static Board create(UserAuth userAuth, String title, String content) {
+    public static Board create(User user, String title, String content) {
         Board board = new Board();
-        board.user = userAuth;// 쓴 사람 id = 수정 가능
+        board.user = user;// 쓴 사람 id = 수정 가능
         board.title = title;
         board.content = content;
         board.cnt = 0;
@@ -62,8 +62,8 @@ public class Board {
     }
     //서비스에서 검사할 걸 여기서 작성하면, 서비스에 여러곳에서 작성할 필요 없이
     //편리함.
-    public void validateOwner( UserAuth userAuth) {
-        if (!this.user.getUserId().equals(userAuth.getUserId())) {
+    public void validateOwner( User user) {
+        if (!this.user.getUserId().equals(user.getUserId())) {
             throw new IllegalArgumentException("본인 글만 수정/삭제할 수 있습니다.");
         }
     }

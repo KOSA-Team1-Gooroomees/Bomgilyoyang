@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.repository;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,5 +22,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     ORDER BY COUNT(r) DESC, b.createdAt DESC
 """)
     Page<Board> findAllOrderByReplyCount(Pageable pageable);
-    Long countByUser(UserAuth user);
+
+    Long countByUser(User user);
 }
