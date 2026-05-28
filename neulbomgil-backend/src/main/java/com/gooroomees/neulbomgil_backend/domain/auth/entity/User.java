@@ -29,7 +29,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -38,6 +37,10 @@ public class User {
     private Role role;
 
     private Status status;
+
+    // OAuth2 연동을 위한 필드
+    private String provider;
+    private String providerId;
 
     public void activate() {
         this.status = Status.ACTIVE;

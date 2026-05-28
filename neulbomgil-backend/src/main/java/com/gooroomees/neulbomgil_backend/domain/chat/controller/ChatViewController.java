@@ -1,5 +1,6 @@
-package com.gooroomees.neulbomgil_backend.domain.chat.controller.view;
+package com.gooroomees.neulbomgil_backend.domain.chat.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.CustomUserDetails;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.User;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
@@ -28,7 +29,8 @@ public class ChatViewController {
 
 
     @PostMapping("/start")
-    public ModelAndView startChatRoom(@AuthenticationPrincipal User user) {
+    public ModelAndView startChatRoom(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        User user = customUserDetails.getUser();
         ChatRoomResponseDto chatRoom =
                 chatService.startChatRoom(user.getUserId());
 
@@ -39,8 +41,9 @@ public class ChatViewController {
 
     @GetMapping("/start")
     public ModelAndView startChatRoomGet(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        User user = customUserDetails.getUser();
         ChatRoomResponseDto chatRoom =
                 chatService.startChatRoom(user.getUserId());
 
@@ -55,9 +58,10 @@ public class ChatViewController {
     @GetMapping("/{roomId}/message")
     public ModelAndView chatRoom(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
 
+         User user = customUserDetails.getUser();
         chatService.readMessages(roomId, user.getUserId());
 
 
@@ -109,16 +113,19 @@ public class ChatViewController {
     @ResponseBody
     public void readMessages(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+
+        User user = customUserDetails.getUser();
         chatService.readMessages(roomId, user.getUserId());
     }
 
     @GetMapping("/unread")
     @ResponseBody
     public boolean hasUnreadChats(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        User user = customUserDetails.getUser();
         return chatService.hasUnreadChats(
                 user.getUserId()
         );

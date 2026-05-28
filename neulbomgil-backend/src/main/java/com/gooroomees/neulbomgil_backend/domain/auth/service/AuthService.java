@@ -37,10 +37,10 @@ public class AuthService {
     private final EmailService emailService;
     // private final AuthTokenRepository authTokenRepository;
 
-    @Value("${kakao.auth.client}")
-    private String kakaoKey;
-    @Value("${kakao.auth.client_secret_key}")
-    private String clientSecretKey;
+//    @Value("${kakao.auth.client}")
+//    private String kakaoKey;
+//    @Value("${kakao.auth.client_secret_key}")
+//    private String clientSecretKey;
 
 
     @Transactional
@@ -276,64 +276,64 @@ public class AuthService {
     }
 
 
-    private KakaoTokenResponse requestToken(String accessCode) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON)); // 이 부분 추가
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", kakaoKey);
-        params.add("redirect_url", "http://localhost:8088/api/auth/kakao");
-        params.add("code", accessCode);
-        params.add("client_secret", clientSecretKey);
-
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
-
-        ResponseEntity<KakaoTokenResponse> response = restTemplate.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                KakaoTokenResponse.class);
-
-        KakaoTokenResponse kakaoToken = null;
-
-        try {
-            kakaoToken = response.getBody();
-            log.info("kakaoToken : " + kakaoToken.getAccess_token());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        return kakaoToken;
-    }
-
-    private KakaoProfileResponse requestProfile(KakaoTokenResponse kakaoToken) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-        headers.add("Authorization","Bearer "+ kakaoToken.getAccess_token());
-
-        HttpEntity<MultiValueMap<String,String>> kakaoProfileRequest = new HttpEntity <>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET,
-                kakaoProfileRequest,
-                String.class);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        KakaoProfileResponse kakaoProfile = null;
-        try {
-            kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfileResponse.class);
-            log.info("Kakao Profile : " + kakaoProfile.getKakao_account().getEmail());
-        } catch (Exception e) {
-            log.info(Arrays.toString(e.getStackTrace()));
-            System.out.println(e.getMessage());
-        }
-
-        return kakaoProfile;
-    }
+//    private KakaoTokenResponse requestToken(String accessCode) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON)); // 이 부분 추가
+//
+//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+//        params.add("grant_type", "authorization_code");
+//        params.add("client_id", kakaoKey);
+//        params.add("redirect_url", "http://localhost:8088/api/auth/kakao");
+//        params.add("code", accessCode);
+//        params.add("client_secret", clientSecretKey);
+//
+//        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
+//
+//        ResponseEntity<KakaoTokenResponse> response = restTemplate.exchange(
+//                "https://kauth.kakao.com/oauth/token",
+//                HttpMethod.POST,
+//                kakaoTokenRequest,
+//                KakaoTokenResponse.class);
+//
+//        KakaoTokenResponse kakaoToken = null;
+//
+//        try {
+//            kakaoToken = response.getBody();
+//            log.info("kakaoToken : " + kakaoToken.getAccess_token());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        return kakaoToken;
+//    }
+//
+//    private KakaoProfileResponse requestProfile(KakaoTokenResponse kakaoToken) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//        headers.add("Authorization","Bearer "+ kakaoToken.getAccess_token());
+//
+//        HttpEntity<MultiValueMap<String,String>> kakaoProfileRequest = new HttpEntity <>(headers);
+//
+//        ResponseEntity<String> response = restTemplate.exchange(
+//                "https://kapi.kakao.com/v2/user/me",
+//                HttpMethod.GET,
+//                kakaoProfileRequest,
+//                String.class);
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        KakaoProfileResponse kakaoProfile = null;
+//        try {
+//            kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfileResponse.class);
+//            log.info("Kakao Profile : " + kakaoProfile.getKakao_account().getEmail());
+//        } catch (Exception e) {
+//            log.info(Arrays.toString(e.getStackTrace()));
+//            System.out.println(e.getMessage());
+//        }
+//
+//        return kakaoProfile;
+//    }
 }
