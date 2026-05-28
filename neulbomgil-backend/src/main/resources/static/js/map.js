@@ -1,10 +1,11 @@
-// 글로벌 상태 변수 관리 (React의 useState 대체)
 let map = null;
 let coords = {lat: 37.5665, lon: 126.9780}; // 기본 서울 시청
 let currentMarkers = []; // 현재 지도에 표시된 시설 마커 배열
 let parkMarkers = [];    // 현재 지도에 표시된 공원 마커 배열
 let selectedFacilityId = null;
-let isFavoriteState = false;
+
+let globalFavorites = [];
+let activeTab = 'search'; // 'search' 또는 'favorite'
 
 // 페이징 및 검색 상태 관리
 let keyword = '';
@@ -18,9 +19,14 @@ const facilityListEl = document.getElementById('facilityList');
 const keywordInputEl = document.getElementById('keywordInput');
 const listLoadingEl = document.getElementById('listLoading');
 const detailSidebarEl = document.getElementById('detailSidebar');
+const tabSearchBtn = document.getElementById('tabSearchBtn');
+const tabFavoriteBtn = document.getElementById('tabFavoriteBtn');
 
-// 문서 로드 완시 초기화
+// 문서 로드 완료 시 초기화
 document.addEventListener("DOMContentLoaded", () => {
+    // 최초 1회 즐겨찾기 로드
+    fetchGlobalFavorites();
+
     if (typeof kakao !== 'undefined' && kakao.maps) {
         initGeolocation();
     } else {
@@ -32,6 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
 });
+
+// 서버에서 데이터를 다시 긁어와 리스트까지 갱신
+async function fetchGlobalFavorites() {
+    try {
+        const response = await fetch('/api/favorites/me');
+        if (response.ok) {
+            globalFavorites = await response.json();
+
+            // 현재 즐겨찾기 탭을 보고 있다면 화면 리스트를 서버 데이터로 덮어씌움
+            if (activeTab === 'favorite') {
+                renderFavoriteList();
+            }
+        }
+    } catch (err) {
+        console.error("즐겨찾기 갱신 실패:", err);
+    }
+}
+
+// 특정 시설이 즐겨찾기 상태인지 판단하는 헬퍼
+function isCurrentFavorite(facilityId) {
+    return globalFavorites.some(fav => String(fav.facilityId) === String(facilityId));
+}
 
 // 1. 현재 사용자 위치 가져오기
 function initGeolocation() {
@@ -61,13 +89,11 @@ function initKakaoMap() {
     };
     map = new kakao.maps.Map(container, options);
 
-    // 내 위치 마커 표시
     new kakao.maps.Marker({
         position: new kakao.maps.LatLng(coords.lat, coords.lon),
         map: map
     });
 
-    // 지도 이동 및 줌 종료 시(Idle) 이벤트 핸들러
     kakao.maps.event.addListener(map, 'idle', () => {
         const center = map.getCenter();
         const level = map.getLevel();
@@ -82,10 +108,7 @@ function initKakaoMap() {
         fetchFacilityMarkers(center.getLat(), center.getLng(), radius);
     });
 
-    // 지도 생성 완료 후 검색창 및 스크롤 이벤트 리스너를 활성화
     initEventListeners();
-
-    // 초기 리스트 데이터 로드
     fetchFacilities(true);
 }
 
@@ -97,14 +120,13 @@ async function fetchFacilityMarkers(lat, lon, radius) {
         const response = await fetch(`/api/map/facilities/markers?lat=${lat}&lon=${lon}&radius=${radius}`);
         const markersData = await response.json();
 
-        // 기존 시설 마커 및 오버레이 청소
         currentMarkers.forEach(m => m.setMap(null));
         currentMarkers = [];
         if (currentOverlay) currentOverlay.setMap(null);
 
         markersData.forEach(pos => {
             const markerPos = new kakao.maps.LatLng(pos.latitude, pos.longitude);
-            const isSelected = selectedFacilityId === pos.id;
+            const isSelected = selectedFacilityId === String(pos.id);
 
             const marker = new kakao.maps.Marker({
                 position: markerPos,
@@ -115,14 +137,12 @@ async function fetchFacilityMarkers(lat, lon, radius) {
                 )
             });
 
-            // 마커 마우스오버 시 이름 보여줄 오버레이 객체 생성
             const overlayContent = document.createElement('div');
             overlayContent.className = `bg-white px-3 py-1 rounded-full shadow-lg border-2 text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected ? "border-blue-600 text-blue-700 scale-110" : "border-gray-400 text-gray-600 hover:border-blue-400"
             }`;
             overlayContent.innerText = pos.facilityName;
 
-            // 오버레이 클릭 시에도 상세 정보 열리도록 설정
             overlayContent.onclick = (e) => {
                 e.stopPropagation();
                 handleOpenDetail(pos.id, markerPos);
@@ -134,7 +154,6 @@ async function fetchFacilityMarkers(lat, lon, radius) {
                 yAnchor: 2.3
             });
 
-            // 기본적으로 선택된 마커는 오버레이를 유지하고, 그렇지 않으면 마우스 반응 이벤트 등록
             if (isSelected) {
                 customOverlay.setMap(map);
                 currentOverlay = customOverlay;
@@ -143,15 +162,12 @@ async function fetchFacilityMarkers(lat, lon, radius) {
                     customOverlay.setMap(map);
                 });
                 kakao.maps.event.addListener(marker, 'mouseout', () => {
-                    if (selectedFacilityId !== pos.id) {
-                        customOverlay.setMap(null);
-                    }
+                    if (selectedFacilityId !== String(pos.id)) customOverlay.setMap(null);
                 });
             }
 
-            // 마커 클릭 이벤트 바인딩
             kakao.maps.event.addListener(marker, 'click', () => {
-                if (currentOverlay) currentOverlay.setMap(null); // 이전 오버레이 닫기
+                if (currentOverlay) currentOverlay.setMap(null);
                 customOverlay.setMap(map);
                 currentOverlay = customOverlay;
                 handleOpenDetail(pos.id, markerPos);
@@ -164,9 +180,11 @@ async function fetchFacilityMarkers(lat, lon, radius) {
     }
 }
 
-// 4. 왼쪽 스크롤 리스트 채우기
+// 4. 왼쪽 검색결과 리스트 출력
 async function fetchFacilities(isFirstLoad = false) {
+    if (activeTab !== 'search') return;
     if (isListLoading || (!isFirstLoad && !hasNextPage)) return;
+
     isListLoading = true;
     listLoadingEl.classList.remove('hidden');
 
@@ -193,7 +211,6 @@ async function fetchFacilities(isFirstLoad = false) {
                 const itemHtml = createFacilityItemHtml(item);
                 facilityListEl.insertAdjacentHTML('beforeend', itemHtml);
 
-                // 마지막 요소 관찰 (Infinite Scroll)
                 if (data.length === 10 && index === data.length - 1) {
                     lastId = item.id;
                     lastValue = item.distance;
@@ -207,6 +224,22 @@ async function fetchFacilities(isFirstLoad = false) {
         isListLoading = false;
         listLoadingEl.classList.add('hidden');
     }
+}
+
+// 4-2. 즐겨찾기 리스트 렌더링
+function renderFavoriteList() {
+    facilityListEl.innerHTML = '';
+
+    if (globalFavorites.length === 0) {
+        facilityListEl.innerHTML = `<div class="text-center py-8 text-gray-400 text-sm">등록된 즐겨찾기가 없습니다.</div>`;
+        return;
+    }
+
+    globalFavorites.forEach(fav => {
+        const targetFacility = fav.facility ? fav.facility : fav;
+        const itemHtml = createFacilityItemHtml(targetFacility);
+        facilityListEl.insertAdjacentHTML('beforeend', itemHtml);
+    });
 }
 
 // 5. 컴포넌트 HTML 생성
@@ -231,9 +264,7 @@ function createFacilityItemHtml(item) {
                 <h3 class="font-bold text-m truncate text-gray-800">${item.facilityName}</h3>
                 <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-md shrink-0">${item.distance ? item.distance.toFixed(1) : 0}km</span>
             </div>
-            
             <div class="flex items-center gap-0.5 mt-0.5 ">${icons}</div>
-            
             <div class="mt-2 space-y-1">
                 <p class="text-[11px] text-gray-500 flex items-start"><span class="mr-1 text-blue-400">📍</span><span class="truncate">${item.newAddress}</span></p>
                 ${item.facilityTel ? `<p class="text-[11px] text-gray-400 flex items-center"><span class="mr-1 text-green-500">📞</span><span class="truncate">${item.facilityTel}</span></p>` : ''}
@@ -242,9 +273,9 @@ function createFacilityItemHtml(item) {
     </div>`;
 }
 
-// 6. 시설 상세 정보 조회 및 사이드바 바인딩 (수정됨: 클릭 시 리스트 클래스 토글 로직 추가)
+// 6. 시설 상세 정보 조회 및 사이드바 바인딩
 async function handleOpenDetail(facilityId, latLng) {
-    selectedFacilityId = String(facilityId); // 데이터 타입 일치를 위해 스트링 변환
+    selectedFacilityId = String(facilityId);
     if (map && latLng) map.panTo(latLng);
 
     document.querySelectorAll('.facility-item').forEach(el => {
@@ -258,12 +289,10 @@ async function handleOpenDetail(facilityId, latLng) {
     });
 
     try {
-        // 상세 데이터 가져오기
         const response = await fetch(`/api/map/facilities/${facilityId}`);
         if (!response.ok) return;
         const detail = await response.json();
 
-        // 사이드바 UI 갱신
         document.getElementById("detailImage").src = detail.facilityImage;
         document.getElementById('detailName').innerText = detail.facilityName;
         document.getElementById('detailScore').innerText = Number(detail.facilityScore || 0).toFixed(1);
@@ -280,11 +309,10 @@ async function handleOpenDetail(facilityId, latLng) {
             document.getElementById('detailPhoneContainer').classList.add('hidden');
         }
 
-        // 즐겨찾기 상태 점검 및 인근 공원 조회 병렬 호출
-        checkFavoriteStatus(facilityId);
+        // 하트 상태 스타일 토글
+        toggleFavoriteBtnStyle(isCurrentFavorite(facilityId));
         fetchNearbyParks(facilityId);
 
-        // 사이드바 노출
         detailSidebarEl.classList.remove('hidden');
     } catch (err) {
         console.error("상세조회 에러:", err);
@@ -301,7 +329,6 @@ async function fetchNearbyParks(facilityId) {
         const parkContainer = document.getElementById('nearbyParkList');
         parkContainer.innerHTML = '';
 
-        // 기존 공원 마커 청소
         parkMarkers.forEach(m => m.setMap(null));
         parkMarkers = [];
 
@@ -314,7 +341,6 @@ async function fetchNearbyParks(facilityId) {
         }
 
         parks.forEach(park => {
-            // 7-1. 왼쪽 사이드바 하단 공원 리스트 엘리먼트 추가
             const parkHtml = `
                 <div class="p-4 rounded-xl border border-gray-100 bg-white shadow-sm flex flex-col gap-3">
                     <div class="flex flex-col gap-1.5">
@@ -331,7 +357,6 @@ async function fetchNearbyParks(facilityId) {
                 </div>`;
             parkContainer.insertAdjacentHTML('beforeend', parkHtml);
 
-            // 7-2. 공원 지도 마커 생성
             const parkPos = new kakao.maps.LatLng(park.latitude, park.longitude);
             const marker = new kakao.maps.Marker({
                 position: parkPos,
@@ -339,7 +364,6 @@ async function fetchNearbyParks(facilityId) {
                 image: new kakao.maps.MarkerImage("/images/icons/mark/park_marker.png", new kakao.maps.Size(24, 35))
             });
 
-            // 7-3. 공원 커스텀 오버레이 DOM 동적 생성
             const parkOverlayContent = document.createElement('div');
             parkOverlayContent.className = "bg-white p-3 rounded-xl shadow-2xl border-2 border-green-500 min-w-[200px] relative mb-2";
             parkOverlayContent.innerHTML = `
@@ -354,14 +378,11 @@ async function fetchNearbyParks(facilityId) {
                 <div class="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-r-2 border-b-2 border-green-500 rotate-45"></div>
             `;
 
-            // 카카오 오버레이 객체 생성
             const parkOverlay = new kakao.maps.CustomOverlay({
                 position: parkPos,
                 content: parkOverlayContent,
                 yAnchor: 1.4
             });
-
-            // 7-4. 마우스 호버 이벤트 등록
             kakao.maps.event.addListener(marker, 'mouseover', () => {
                 parkOverlay.setMap(map);
             });
@@ -376,24 +397,6 @@ async function fetchNearbyParks(facilityId) {
     }
 }
 
-// 8. 즐겨찾기 비동기 통신 로직 및 이벤트 리스너 통합
-async function checkFavoriteStatus(facilityId) {
-    try {
-        const response = await fetch('/api/favorites/me');
-
-        if (response.ok) {
-            const favorites = await response.json();
-            isFavoriteState = favorites.some(fav => String(fav.facilityId) === String(facilityId));
-            toggleFavoriteBtnStyle(isFavoriteState);
-        } else if (response.status === 401) {
-            isFavoriteState = false;
-            toggleFavoriteBtnStyle(false);
-        }
-    } catch (err) {
-        console.error("즐겨찾기 상태 조회 오류:", err);
-    }
-}
-
 function toggleFavoriteBtnStyle(isFav) {
     const btn = document.getElementById('favoriteBtn');
     if (isFav) {
@@ -405,55 +408,75 @@ function toggleFavoriteBtnStyle(isFav) {
     }
 }
 
-// 9. 검색창 디바운스 및 스크롤 이벤트 바인딩
+// 9. 이벤트 리스너 바인딩
 function initEventListeners() {
-    // 검색창 디바운스 입력
+
+    // 탭 클릭 핸들러
+    tabSearchBtn.addEventListener('click', () => {
+        activeTab = 'search';
+        tabSearchBtn.className = "flex-1 py-2 text-center text-sm font-semibold border-b-2 border-blue-500 text-blue-600 transition-all outline-none";
+        tabFavoriteBtn.className = "flex-1 py-2 text-center text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all outline-none";
+        fetchFacilities(true);
+    });
+
+    tabFavoriteBtn.addEventListener('click', () => {
+        activeTab = 'favorite';
+        tabSearchBtn.className = "flex-1 py-2 text-center text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all outline-none";
+        tabFavoriteBtn.className = "flex-1 py-2 text-center text-sm font-semibold border-b-2 border-blue-500 text-blue-600 transition-all outline-none";
+        renderFavoriteList();
+    });
+
+    // 검색 입력창 디바운스
     let searchTimer;
     keywordInputEl.addEventListener('input', (e) => {
         clearTimeout(searchTimer);
         keyword = e.target.value;
         searchTimer = setTimeout(() => {
-            fetchFacilities(true);
+            if (activeTab === 'favorite') {
+                tabSearchBtn.click();
+            } else {
+                fetchFacilities(true);
+            }
         }, 400);
     });
 
-    // 왼쪽 무한 스크롤 타겟 감지
+    // 무한 스크롤
     facilityListEl.addEventListener('scroll', () => {
+        if (activeTab !== 'search') return;
         if (facilityListEl.scrollTop + facilityListEl.clientHeight >= facilityListEl.scrollHeight - 20) {
             fetchFacilities(false);
         }
     });
 
-    // 사이드바 닫기 버튼
+    // 상세창 닫기
     document.getElementById('closeSidebarBtn').addEventListener('click', () => {
         detailSidebarEl.classList.add('hidden');
         selectedFacilityId = null;
-        parkMarkers.forEach(m => m.setMap(null)); // 공원 마커 지우기
+        parkMarkers.forEach(m => m.setMap(null));
 
         document.querySelectorAll('.facility-item').forEach(el => {
-            el.classList.remove('bg-whi', 'border-green-400');
+            el.classList.remove('bg-bg-soft', 'border-green-400');
             el.classList.add('bg-white', 'border-gray-100', 'hover:border-blue-200');
         });
     });
 
-    // 즐겨찾기 버튼 클릭 액션 인터랙션
+    // 즐겨찾기 클릭 제어
     document.getElementById('favoriteBtn').addEventListener('click', async () => {
-        const method = isFavoriteState ? 'DELETE' : 'POST';
-        const url = '/api/favorites' + (isFavoriteState ? '/me' : '');
+        const alreadyFav = isCurrentFavorite(selectedFacilityId);
+        const method = alreadyFav ? 'DELETE' : 'POST';
+        const url = alreadyFav ? '/api/favorites/me' : '/api/favorites';
         const body = JSON.stringify({facilityId: selectedFacilityId});
 
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: body
             });
 
             if (response.ok) {
-                isFavoriteState = !isFavoriteState;
-                toggleFavoriteBtnStyle(isFavoriteState);
+                await fetchGlobalFavorites();
+                toggleFavoriteBtnStyle(isCurrentFavorite(selectedFacilityId));
             } else if (response.status === 401) {
                 alert("즐겨찾기 기능은 로그인 후 이용 가능합니다.");
                 window.location.href = '/login';
@@ -462,7 +485,9 @@ function initEventListeners() {
             }
         } catch (err) {
             console.error(err);
-            alert("즐겨찾기 처리 중 에러 발생");
+            if (confirm("인증 세션이 만료되었거나 로그인 정보가 없습니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                window.location.href = '/login';
+            }
         }
     });
 }
