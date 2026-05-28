@@ -257,6 +257,24 @@ public class AuthService {
         }
     }
 
+    // 회원 탈퇴 (비밀번호 확인 후 삭제)
+    @Transactional
+    public boolean withdrawUser(Long userId, String rawPassword) {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+            if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+                return false;
+            }
+            user.deleteUser();
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.info("Error withdrawing user: " + e.getMessage());
+            return false;
+        }
+    }
+
 
     private KakaoTokenResponse requestToken(String accessCode) {
         RestTemplate restTemplate = new RestTemplate();
