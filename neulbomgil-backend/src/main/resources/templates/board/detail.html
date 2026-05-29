@@ -68,10 +68,6 @@
             <!-- 작성자 정보 + 수정/삭제 버튼 -->
             <div class="flex justify-between items-center py-2 border-b border-gray-100">
                 <div class="flex items-center gap-4 text-sm text-gray-500">
-                    <!-- 프로필 아이콘 -->
-<!--                    <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold text-sm">-->
-<!--                        <span th:text="${#strings.substring(board.name, 0, 1)}"></span>-->
-<!--                    </div>-->
                     <span class="font-semibold text-gray-700" th:text="${board.name}"></span>
                     <span th:if="${board.createdAt != null}"
                           th:text="${#strings.substring(board.createdAt.toString(), 0, 16).replace('T', ' ')}"></span>
