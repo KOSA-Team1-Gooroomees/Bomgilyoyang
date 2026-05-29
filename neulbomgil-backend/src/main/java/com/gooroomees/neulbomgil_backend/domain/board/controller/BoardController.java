@@ -8,11 +8,21 @@ import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 @Tag(name = "게시판", description = "게시판 관련 API")
@@ -72,26 +82,27 @@ public class BoardController {
     // 글 작성
     @Operation(summary = "게시글 작성",
             description = "로그인한 사용자가 새 게시글을 작성합니다. JWT 토큰이 필요합니다.")
-    @PostMapping("/inserts")
+    @PostMapping(value = "/inserts", consumes = "multipart/form-data")
     public ResponseEntity<Void> createBoard(
-            @RequestBody BoardRequestDTO dto,
+            @RequestPart("data") BoardRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         User user = userDetails.getUser();
-        boardService.createBoard(dto, user);
+        boardService.createBoard(dto, user, files);
         return ResponseEntity.ok().build();
     }
 
     // 글 수정
     @Operation(summary = "게시글 수정",
             description = "본인이 작성한 게시글을 수정합니다. 작성자 본인만 수정 가능합니다.")
-    @PutMapping("/{boardId}")
+    @PutMapping(value = "/{boardId}", consumes = "multipart/form-data")
     public ResponseEntity<?> updateBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {  // ← 변경
-
-        User user = userDetails.getUser();  // ← User 꺼내기
-        boardService.updateBoard(dto, boardId, user);
+            @RequestPart("data") BoardRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        boardService.updateBoard(dto, boardId, user, files);
         return ResponseEntity.ok().build();
     }
 
@@ -115,5 +126,37 @@ public class BoardController {
         User user = userDetails.getUser();
         boolean liked = boardService.toggleLike(boardId, user);
         return ResponseEntity.ok(Map.of("liked", liked));
+    }
+    // 이미지 미리보기용 — Content-Disposition 없이 반환
+    @GetMapping("/files/{fileId}/preview")
+    public ResponseEntity<Resource> previewFile(@PathVariable Long fileId) throws Exception {
+        Resource resource = boardService.downloadFile(fileId);
+        // Content-Type 자동 감지
+        String contentType = Files.probeContentType(
+                Paths.get(boardService.getFilePath(fileId))
+        );
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+                .body(resource);
+    }
+
+    // 파일 다운로드
+    @Operation(summary = "첨부파일 다운로드")
+    @GetMapping("/files/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws Exception {
+        Resource resource = boardService.downloadFile(fileId);
+        String originalName = boardService.getOriginalFileName(fileId);
+        String encodedName = URLEncoder.encode(originalName, StandardCharsets.UTF_8).replace("+", "%20");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedName)
+                .body(resource);
+    }
+    //수정에서 파일 삭제
+    @DeleteMapping("/files/{fileId}")
+    public ResponseEntity<Void> deleteFile(
+            @PathVariable Long fileId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boardService.deleteFile(fileId, userDetails.getUser());
+        return ResponseEntity.noContent().build();
     }
 }

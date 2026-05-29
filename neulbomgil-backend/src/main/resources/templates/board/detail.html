@@ -96,7 +96,38 @@
             <!-- 게시글 본문 -->
             <div class="min-h-[200px] text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-b border-gray-100 py-6"
                  th:text="${board.content}"></div>
+            <div th:if="${board.files != null and !#lists.isEmpty(board.files)}"
+                 class="flex flex-col gap-3 border-b border-gray-100 pb-6">
+                <h4 class="text-sm font-bold text-gray-600">첨부파일</h4>
+                <div th:each="file : ${board.files}">
 
+                    <!-- 이미지 파일 — 바로 미리보기 -->
+                    <div th:if="${#strings.endsWith(file.originalName, '.jpg') or
+                      #strings.endsWith(file.originalName, '.jpeg') or
+                      #strings.endsWith(file.originalName, '.png') or
+                      #strings.endsWith(file.originalName, '.gif') or
+                      #strings.endsWith(file.originalName, '.webp')}">
+                        <img th:src="${'/api/boards/files/' + file.fileid + '/preview'}"
+                             th:alt="${file.originalName}"
+                             class="w-full rounded-xl object-cover max-h-[500px]"/>
+                        <p class="text-xs text-gray-400 mt-1" th:text="${file.originalName}"></p>
+                    </div>
+
+                    <!-- 일반 파일 — 다운로드 링크 -->
+                    <div th:unless="${#strings.endsWith(file.originalName, '.jpg') or
+                          #strings.endsWith(file.originalName, '.jpeg') or
+                          #strings.endsWith(file.originalName, '.png') or
+                          #strings.endsWith(file.originalName, '.gif') or
+                          #strings.endsWith(file.originalName, '.webp')}"
+                         class="flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                        <span class="text-lg">📎</span>
+                        <a th:href="${file.fileUrl}"
+                           th:text="${file.originalName}"
+                           class="text-sm text-primary hover:underline flex-1 truncate"></a>
+                    </div>
+
+                </div>
+            </div>
             <!-- 좋아요 -->
             <div class="flex items-center gap-2">
                 <button id="likeBtn"
