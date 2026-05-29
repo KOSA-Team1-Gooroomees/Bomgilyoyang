@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 public class RegisterRequest {
 
-    @Schema(description = "사용자 아이디", example = "user123", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "사용자 별명", example = "user123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
     @Schema(description = "비밀번호", example = "pass1234!", requiredMode = Schema.RequiredMode.REQUIRED)
