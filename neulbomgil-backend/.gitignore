@@ -55,3 +55,6 @@ out/
 ### Node.js ###
 /node_modules/
 /package-lock.json
+
+### uploads ###
+uploads
