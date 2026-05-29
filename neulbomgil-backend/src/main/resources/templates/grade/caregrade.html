@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>장기요양등급 자가진단</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+
+<body style="margin:0; background-color:#F5F6F3; color:#222;">
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="w-full max-w-5xl mx-auto px-4 py-6 pb-20 box-border">
+
+  <section class="rounded-xl bg-white px-8 py-9 shadow-sm">
+
+    <!-- 제목 -->
+    <h1
+            class="text-center font-bold"
+            style="font-size:34px; margin-bottom:14px;">
+
+      장기요양등급 이란?
+
+    </h1>
+
+    <!-- 설명 -->
+    <p
+            class="text-center"
+            style="font-size:20px;
+                   line-height:1.8;
+                   color:#555;
+                   margin-bottom:46px;">
+
+      일상생활이 어려운 어르신에게 국가가 돌봄 서비스를 지원하기 위해<br>
+      신체 및 인지 상태를 평가하여 부여하는 등급입니다.
+
+      <br><br>
+
+      이 등급에 따라 이용할 수 있는 서비스와 지원 금액이 달라집니다.
+
+    </p>
+
+    <!-- =========================
+         등급 설명
+    ========================== -->
+
+    <h2
+            class="font-bold"
+            style="font-size:18px; margin-bottom:18px;">
+
+      등급설명
+
+    </h2>
+
+    <div
+            class="bg-white rounded-2xl border border-border"
+            style="padding:28px 32px;
+                   margin-bottom:32px;
+                   box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+
+      <div
+              style="display:flex;
+                     flex-direction:column;
+                     gap:14px;">
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          1등급 :
+          <span class="font-medium" style="color:#222;">
+            전적으로 도움이 필요한 상태
+          </span>
+
+        </div>
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          2등급 :
+          <span class="font-medium" style="color:#222;">
+            상당 부분 도움이 필요한 상태
+          </span>
+
+        </div>
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          3등급 :
+          <span class="font-medium" style="color:#222;">
+            부분적인 도움이 필요한 상태
+          </span>
+
+        </div>
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          4등급 :
+          <span class="font-medium" style="color:#222;">
+            일정 부분 도움이 필요한 상태
+          </span>
+
+        </div>
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          5등급 :
+          <span class="font-medium" style="color:#222;">
+            치매 중심의 경증 상태
+          </span>
+
+        </div>
+
+        <div
+                class="font-bold"
+                style="font-size:18px; color:#2F4F3D;">
+
+          인지지원등급 :
+          <span class="font-medium" style="color:#222;">
+            인지 기능 중심 지원
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =========================
+         지원금 / 보험 설명
+    ========================== -->
+
+    <h2
+            class="font-bold"
+            style="font-size:18px; margin-bottom:18px;">
+
+      지원금 / 보험 설명
+
+    </h2>
+
+    <div
+            class="bg-white rounded-2xl border border-border"
+            style="padding:28px 32px;
+                   margin-bottom:32px;
+                   box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+
+      <div
+              style="font-size:16px;
+                     line-height:1.9;
+                     color:#333;">
+
+        장기요양등급을 받으면 등급에 따라 월 이용 한도가 정해지며,<br>
+        그 범위 내에서 요양 서비스를 이용할 수 있습니다.
+
+        <br><br>
+
+        시설 이용 시 약 20%,<br>
+        재가 서비스 이용 시 약 15%의 본인부담금이 발생합니다.
+
+        <p
+                style="margin-top:18px;
+                       font-size:15px;
+                       color:#666;">
+
+          ※ 기초생활수급자 및 차상위계층은
+          본인부담금이 경감될 수 있습니다.
+
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- =========================
+         버튼
+    ========================== -->
+
+    <div
+            class="flex justify-center"
+            style="margin-top:48px;">
+
+      <button
+              type="button"
+              class="text-white font-bold rounded-md"
+
+              style="width:340px;
+                     height:58px;
+                     font-size:22px;
+                     background-color:#2F6F42;
+                     border:none;
+                     cursor:pointer;
+                     transition:0.2s;"
+
+              onmouseover="this.style.backgroundColor='#1a4a28'; this.style.transform='translateY(-2px)'"
+
+              onmouseout="this.style.backgroundColor='#2F6F42'; this.style.transform='translateY(0)'"
+
+              onclick="location.href='/caregrade/test'">
+
+        내 등급 확인하러 가기
+
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

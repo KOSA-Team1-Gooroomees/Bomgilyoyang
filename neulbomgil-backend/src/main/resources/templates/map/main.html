@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>봄길요양 - CareMap</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <script type="text/javascript"
+            th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey='+${kakaoMapApiKey}+'&libraries=services'"></script>
+</head>
+<body class="bg-white">
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="flex flex-col md:flex-row w-screen h-screen overflow-hidden bg-white">
+
+    <div class="w-full md:w-[400px] h-full flex flex-col border-r border-gray-200 z-10 shadow-lg bg-white">
+        <div class="p-4 pb-2 bg-white">
+            <input type="text" id="keywordInput" placeholder="지역명을 검색하세요"
+                   class="w-full px-4 py-3 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"/>
+        </div>
+
+        <div class="flex border-b border-gray-100 bg-white px-4 pb-2 shrink-0">
+            <button id="tabSearchBtn"
+                    class="flex-1 py-2 text-center text-sm font-semibold border-b-2 border-blue-500 text-blue-600 transition-all outline-none">
+                검색 결과
+            </button>
+            <button id="tabFavoriteBtn"
+                    class="flex-1 py-2 text-center text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all outline-none">
+                즐겨찾기
+            </button>
+        </div>
+
+        <div id="facilityList" class="flex-1 overflow-y-auto p-4 space-y-4">
+        </div>
+        <div id="listLoading" class="hidden text-center py-4 text-gray-400 animate-pulse text-sm">로딩 중...</div>
+    </div>
+
+    <div id="detailSidebar"
+         class="hidden absolute left-[400px] w-[370px] h-full bg-white shadow-2xl z-20 border-l border-gray-100 flex flex-col">
+        <button id="closeSidebarBtn"
+                class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-white shadow-md rounded-full hover:bg-gray-50 transition-all z-30 border border-gray-100 text-gray-500 text-lg">
+            ✕
+        </button>
+
+        <div class="w-full h-60 bg-gray-100 shrink-0">
+            <img id="detailImage" src="" alt="" class="w-full h-full object-cover"/>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-7">
+            <div class="mb-6">
+                <span class="inline-block text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded mb-2.5">시설 상세정보</span>
+                <div class="flex items-center justify-between gap-2">
+                    <h2 id="detailName" class="text-2xl font-extrabold text-gray-900 leading-tight"></h2>
+                    <button id="favoriteBtn"
+                            class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full border transition-all bg-gray-50 border-gray-100 text-gray-400 hover:text-red-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center mt-2.5 justify-between">
+                    <div class="relative flex items-center space-x-1 group cursor-pointer">
+                        <img src="/images/icons/score-true.png" alt="점수 아이콘" class="w-5 h-5 object-contain"/>
+                        <span id="detailScore" class="text-sm font-bold text-gray-700 ml-1">0.0</span>
+                        <div class="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col items-start z-30 w-52">
+                            <div class="bg-gray-800 text-white text-[11px] font-medium px-2.5 py-2 rounded shadow-md leading-normal text-left break-keep">
+                                <strong class="text-white block mb-1">시설 점수란?</strong>
+                                인근 공원의 개수와 총면적을 종합적으로 분석하여 산출한 공원 접근성 점수입니다. (1~5점)
+                            </div>
+                            <div class="w-2 h-2 bg-gray-800 rotate-45 -mt-1 ml-4"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-[12px]">
+                        <span class="flex items-center gap-1 font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">정원 <span
+                                id="capacityCnt" class="text-blue-600">0</span></span>
+                        <span class="flex items-center gap-1 font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">현원 <span
+                                id="currentCnt" class="text-green-600">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-px bg-gray-100 w-full mb-6"></div>
+
+            <div class="space-y-5 text-[15px]">
+                <div class="flex items-start">
+                    <span class="mr-4 mt-0.5 w-6 text-center">📍</span>
+                    <div class="flex-1">
+                        <p id="detailNewAddress" class="font-medium text-gray-800 leading-snug"></p>
+                        <p id="detailLotAddress" class="text-xs text-gray-400 mt-1.5"></p>
+                    </div>
+                </div>
+                <div id="detailPhoneContainer" class="flex items-center">
+                    <span class="mr-4 w-6 text-center">📞</span>
+                    <p id="detailTel"
+                       class="font-medium text-blue-600 hover:underline cursor-pointer tracking-wide"></p>
+                </div>
+            </div>
+
+            <div class="h-px bg-gray-100 w-full my-8"></div>
+
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <img src="/images/icons/score-true.png" alt="공원"
+                         class="w-7 h-7 object-contain border border-transparent rounded-full"> 인근 공원 <span
+                        id="parkCount" class="text-green-600 text-sm font-medium">0</span>
+                </h3>
+                <div id="nearbyParkList" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 relative">
+        <div id="mapContainer" class="w-full h-full"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/map.js}"></script>
+</body>
+</html>

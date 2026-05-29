@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>봄길요양 커뮤니티</title>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+
+<body class="m-0 bg-bg-soft font-eulyoo text-[#222]">
+
+<div class="page">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="flex min-h-[calc(100vh-58px)]">
+
+        <!-- 왼쪽 영역 -->
+        <aside class="w-[280px] shrink-0 bg-bg-soft px-6 py-7">
+
+            <!-- 커뮤니티 카드 -->
+            <section
+                    class="relative h-[230px] overflow-hidden rounded-[var(--radius-main)] bg-[#a9cbaa] px-6 py-7 text-white">
+
+                <h2 class="mb-6 text-2xl font-bold">
+                    봄길요양 커뮤니티
+                </h2>
+
+                <p class="text-sm leading-relaxed tracking-[4px]">
+                    시설 이용 정보와<br>
+                    다양한 소식을<br>
+                    함께 나눠요.
+                </p>
+
+                <div
+                        class="absolute bottom-7 right-4 flex h-[88px] w-[88px] items-center justify-center rounded-full bg-my-chat text-[42px]">
+
+                    🐑
+
+                </div>
+
+            </section>
+
+            <!-- 글쓰기 버튼 -->
+            <button
+                    type="button"
+                    class="mx-auto mb-14 mt-6 flex h-[54px] w-[200px] cursor-pointer items-center justify-center gap-3 rounded-2xl bg-screen-button text-xl font-bold text-white transition hover:bg-primary-hover">
+
+                ✎ 글쓰기
+
+            </button>
+
+            <!-- 문의 카드 -->
+            <section
+                    class="rounded-[var(--radius-main)] border-2 border-border bg-white p-6 shadow-md">
+
+                <h3 class="mb-4 text-lg font-bold">
+                    도움이 필요하신가요?
+                </h3>
+
+                <p class="mb-[22px] text-sm font-semibold leading-relaxed">
+                    관리자와 1:1 채팅으로<br>
+                    빠르게 문의해보세요.
+                </p>
+
+                <div class="relative inline-block">
+
+                    <button
+                            type="button"
+                            id="chatOpenBtn"
+                            class="mx-auto block h-11 w-[170px] cursor-pointer rounded-xl bg-[#79a9ba] text-[17px] font-bold text-white transition hover:bg-[#6b98a5]">
+
+                        채팅하기
+
+                    </button>
+
+                    <div
+                            id="chatUnreadDot"
+                            class="absolute -right-1 -top-1 hidden h-3 w-3 rounded-full bg-red-500">
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+        <!-- 채팅 패널 -->
+        <section
+                id="chatPanel"
+                class="hidden min-h-[calc(100vh-30px)] w-[270px] shrink-0 border-x border-border bg-popup">
+
+            <!-- 헤더 -->
+            <div
+                    class="flex h-[54px] items-center justify-between border-b border-black/20 px-4 text-lg font-bold">
+
+                <span>관리자</span>
+
+                <button
+                        type="button"
+                        id="chatCloseBtn"
+                        class="cursor-pointer bg-transparent text-[34px] leading-none">
+
+                    ×
+
+                </button>
+
+            </div>
+
+            <!-- iframe -->
+            <iframe
+                    id="chatFrame"
+                    class="h-[calc(100vh-90px)] w-full border-0 bg-popup">
+            </iframe>
+
+        </section>
+
+        <!-- 게시판 -->
+        <section class="flex-1 bg-white px-10 py-9">
+
+            <div
+                    class="flex h-[480px] items-center justify-center rounded-[var(--radius-main)] border border-gray-200 bg-gray-50 text-xl text-gray-400">
+
+                게시판 영역
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<script>
+
+    const chatOpenBtn = document.getElementById("chatOpenBtn");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatPanel = document.getElementById("chatPanel");
+    const chatFrame = document.getElementById("chatFrame");
+
+    chatOpenBtn.addEventListener("click", async () => {
+
+        /*
+            로그인 여부 확인
+        */
+        const authCheck = await fetch("/chatrooms/unread");
+
+        /*
+            토큰 만료 / 인증 실패
+        */
+        if(authCheck.status === 401){
+
+            alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+
+            window.location.href = "/login";
+
+            return;
+        }
+
+        /*
+            채팅창 열기
+        */
+        chatPanel.classList.remove("hidden");
+        chatPanel.classList.add("block");
+
+        /*
+            unread 점 제거
+        */
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(unreadDot){
+            unreadDot.classList.add("hidden");
+        }
+
+        if (!chatFrame.src) {
+            chatFrame.src = "/chatrooms/start";
+        }
+    });
+
+    chatCloseBtn.addEventListener("click", () => {
+
+        chatPanel.classList.remove("block");
+        chatPanel.classList.add("hidden");
+
+    });
+
+    async function checkUnreadChat(){
+
+        const response = await fetch("/chatrooms/unread");
+
+        const hasUnread = await response.json();
+
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(hasUnread){
+
+            unreadDot.classList.remove("hidden");
+
+        }else{
+
+            unreadDot.classList.add("hidden");
+        }
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* 필요한 경우 여기에 설정을 적으면 됩니다. */
+/*@theme {*/
+/*    !* 1. 색 설정 *!*/
+/*    --color-primary: #3b82f6;*/
+/*    --color-primary-dark: #1d4ed8;*/
+/*    --color-secondary: #10b981;*/
+
+/*    !* 2. 폰트 설정 *!*/
+/*    --font-sans: "Pretendard", "Inter", "system-ui", "sans-serif";*/
+
+/*    !* 3. 커스텀 수치 *!*/
+/*    --spacing-header: 4rem;*/
+/*}*/
+
+/* 공통 디자인 시스템 */
+
+@font-face {
+    font-family: "Eulyoo1945";
+    src: url("../fonts/Eulyoo1945-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Eulyoo1945";
+    src: url("../fonts/Eulyoo1945-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+
+@theme {
+    /* ===== 본문은 따로 pretendard로 사용할 경우 =====
+    --font-sans: "Pretendard", "Noto Sans KR", sans-serif;
+     */
+    /* =====본문도 Eulyoo 사용할 경우=====
+    --font-sans: "Eulyoo1945", serif;
+    */
+
+    /* ===== Main Button Color (로그인,회원가입 )===== */
+    --color-primary: #5F8F73;
+    --color-primary-hover: #366048;
+
+    /* ===== 상단바 Button Color (지도,게시판 )===== */
+    --color-navbar: #EEF4EF;
+    --color-border: #CFE0D1;
+
+    /* ===== 페이지 내 버튼 (글쓰기, 등록)     ===== */
+    --color-screen-button: #2F6F42;
+    --color-screen-button-hover: #1a4a28;
+
+    /* ===== left side bar ===== */
+    --color-bg-soft: #F4F7F2;
+
+
+    /* ===== Chat ===== */
+    --color-chat-bg: #ADC8AC;
+    --color-my-chat: #FCF3DE;
+    --color-chat-button: #739EAF;
+
+    /* =====  Red Point (탈퇴하기) ===== */
+    --color-danger: #B85C4B;
+
+    /* =====  팝업창 background ===== */
+    --color-popup: #B8CBD3;
+
+    --font-eulyoo: "Eulyoo1945", serif;
+    --radius-main: 12px;
+
+}

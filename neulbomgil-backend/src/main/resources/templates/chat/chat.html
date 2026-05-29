@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방</title>
+
+    <!--
+        SockJS 라이브러리
+        - WebSocket을 지원하지 않는 브라우저에서도 비슷한 방식으로 통신할 수 있게 도와줌
+        - Spring WebSocket에서 SockJS를 사용하도록 설정한 경우 필요
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+
+    <!--
+        STOMP 라이브러리
+        - WebSocket 위에서 메시지를 주고받기 쉽게 해주는 프로토콜
+        - publish/subscribe 구조를 사용할 수 있게 해줌
+        - /pub 으로 메시지를 보내고, /sub 을 구독하는 방식
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+</head>
+<body>
+<!-- 채팅 전체 레이아웃 -->
+<div class="chat-container">
+
+    <!--
+        기존 채팅 메시지 목록 출력 영역
+        - 페이지가 처음 열릴 때 DB에서 조회한 messages를 Thymeleaf로 반복 출력
+    -->
+
+    <div id="messageBox" class="message-box">
+
+        <!--
+            th:each
+            - 서버에서 ModelAndView로 넘긴 messages 리스트를 반복
+            - msg 하나가 ChatResponseDto 하나라고 보면 됨
+        -->
+        <!--
+       th:class
+       - 보낸 사람 senderId와 현재 userId가 같으면 내 메시지 스타일 적용
+       - 다르면 상대방 메시지 스타일 적용
+   -->
+        <div th:each="msg : ${messages}"
+             th:attr="data-date=${#temporals.format(msg.createdAt(), 'yyyy.MM.dd')}"
+             th:class="${msg.senderId() == userId}
+     ? 'message-wrapper my-wrapper'
+     : 'message-wrapper other-wrapper'">
+
+
+
+            <!-- 내 메시지 -->
+            <div th:if="${msg.senderId() == userId}" class="message-row">
+
+                <small class="message-time"
+                       th:text="${#temporals.format(msg.createdAt(), 'a HH:mm')}">
+                </small>
+
+                <div class="message my-message">
+                    <div th:text="${msg.message()}"></div>
+                </div>
+            </div>
+
+
+
+            <!-- 상대 메시지 -->
+            <div th:if="${msg.senderId() != userId}" class="message-row">
+
+                <!-- 상대방 프로필 이미지 -->
+                <img th:src="@{/images/characters/rumi-face.png}"
+                     alt="상대방 프로필"
+                     class="profile-image">
+                <div>
+                    <!-- 상대방 이름 -->
+                    <div
+                            th:if="${msg.senderId() != userId}"
+                            class="sender-name"
+                            th:text="${chatPartnerName}">
+                        관리자
+                    </div>
+                    <div class="message other-message">
+                        <div th:text="${msg.message()}"></div>
+                    </div>
+                </div>
+                <small class="message-time"
+                       th:text="${#temporals.format(msg.createdAt(), 'a HH:mm')}">
+                </small>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 메시지 입력 영역 -->
+    <div class="input-box">
+        <textarea id="messageInput" placeholder="메시지를 입력하세요"></textarea>
+
+        <!-- 버튼 클릭 시 sendMessage() 실행 -->
+        <button type="button" onclick="sendMessage()">전송</button>
+    </div>
+</div>
+
+<!--
+    th:inline="javascript"
+    - Thymeleaf 변수를 JavaScript 코드 안에서 사용할 수 있게 해줌
+-->
+<script th:inline="javascript">
+
+    // roomId, userId 저장
+    const roomId = [[${roomId}]];
+    const userId = [[${userId}]];
+
+    // 마지막 날짜 저장용
+    let lastMessageDate = null;
+
+    // STOMP 클라이언트
+    let stompClient = null;
+
+    // WebSocket 연결
+    function connect() {
+
+        // SockJS 연결 생성
+        const socket = new SockJS("/ws/chat");
+
+        // STOMP 연결
+        stompClient = Stomp.over(socket);
+
+        // 서버 연결 및 구독
+        stompClient.connect({}, function () {
+            console.log("WebSocket 연결 완료");
+
+            // 채팅방 구독
+            stompClient.subscribe("/sub/chatrooms/" + roomId, function (message) {
+
+                // 메시지 JSON 변환
+                const response = JSON.parse(message.body);
+
+                // 화면 출력
+                showMessage(response);
+            });
+        });
+    }
+
+    // 메시지 전송
+    function sendMessage() {
+
+        // textarea 가져오기
+        const input = document.getElementById("messageInput");
+
+        // 공백 제거
+        const message = input.value.trim();
+
+        // 빈 메시지 차단
+        if (message === "") {
+            return;
+        }
+
+        // 연결 여부 확인
+        if (!stompClient || !stompClient.connected) {
+            alert("채팅 서버에 아직 연결되지 않았습니다.");
+            return;
+        }
+
+        // 메시지 전송
+        stompClient.send(
+            "/pub/chatrooms/" + roomId + "/messages",
+
+            /*
+                headers
+                - 지금은 테스트용으로 userId를 헤더에 담고 있음
+                - 실제 로그인 적용 후에는 보통 @AuthenticationPrincipal로 사용자 정보를 가져오므로 불필요할 수 있음
+            */
+            { userId: userId },
+
+            JSON.stringify({
+                message: message
+            })
+        );
+
+        // 입력창 초기화
+        input.value = "";
+    }
+
+    // 실시간 메시지 출력
+    function showMessage(msg) {
+
+        // 메시지 영역
+        const messageBox = document.getElementById("messageBox");
+        // 현재 메시지 날짜
+        const currentMessageDate = formatDay(msg.createdAt);
+
+        // 날짜 변경 시 divider 추가
+        if (lastMessageDate !== currentMessageDate) {
+
+            const divider = createDateDivider(currentMessageDate);
+
+            messageBox.appendChild(divider);
+
+            lastMessageDate = currentMessageDate;
+        }
+        /*
+            메시지 전체 wrapper 생성
+            - 정렬(left/right) 용도
+        */
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("message-wrapper");
+
+        /*
+            메시지 row 생성
+            - 시간 + 말풍선 묶음
+        */
+        const row = document.createElement("div");
+        row.classList.add("message-row");
+
+        // 말풍선
+        const div = document.createElement("div");
+        div.classList.add("message");
+
+        // 시간
+        const time = document.createElement("small");
+        time.classList.add("message-time");
+        time.textContent = formatDate(msg.createdAt);
+
+        // 내 메시지
+        if (Number(msg.senderId) === Number(userId)) {
+
+            wrapper.classList.add("my-wrapper");
+            div.classList.add("my-message");
+
+            row.appendChild(time);
+            row.appendChild(div);
+
+        } else {
+
+            /*
+              상대 메시지는
+              말풍선 → 시간 순서
+          */
+            wrapper.classList.add("other-wrapper");
+            div.classList.add("other-message");
+
+            row.appendChild(div);
+            row.appendChild(time);
+        }
+
+        // 메시지 내용 추가
+        div.innerHTML = `
+        <div>${msg.message}</div>
+    `;
+
+        // wrapper 추가
+        wrapper.appendChild(row);
+
+        // 화면 추가
+        messageBox.appendChild(wrapper);
+
+        // 스크롤 맨 아래 이동
+        messageBox.scrollTop = messageBox.scrollHeight;
+    }
+
+    // 날짜 포맷
+    function formatDay(dateTime) {
+
+        if (!dateTime) return "";
+
+        const date = new Date(dateTime);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}.${month}.${day}`;
+    }
+
+    // 기존 메시지 날짜선 초기화
+    function initializeDateDividers() {
+
+        const messageBox = document.getElementById("messageBox");
+
+        const wrappers = messageBox.querySelectorAll(".message-wrapper");
+
+        let previousDate = null;
+
+        wrappers.forEach(wrapper => {
+
+            const currentDate = wrapper.dataset.date;
+
+            // 날짜 변경 시 divider 추가
+            if (previousDate !== currentDate) {
+
+                const divider = createDateDivider(currentDate);
+
+                messageBox.insertBefore(divider, wrapper);
+
+                previousDate = currentDate;
+            }
+
+        });
+        // 마지막 날짜 저장
+        lastMessageDate = previousDate;
+    }
+
+    // 날짜 divider 생성
+    function createDateDivider(dateText) {
+
+        const divider = document.createElement("div");
+
+        divider.classList.add("date-divider");
+
+        divider.innerHTML = `
+        <span>${dateText}</span>
+    `;
+
+        return divider;
+    }
+
+    // 시간 포맷
+    function formatDate(dateTime) {
+
+        if (!dateTime) return "";
+
+        const date = new Date(dateTime);
+
+        const period = date.getHours() < 12 ? "오전" : "오후";
+        let hours = date.getHours() % 12;
+
+        if (hours === 0) {
+            hours = 12;
+        }
+
+
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        return `${period} ${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    // 초기 날짜선 생성
+    initializeDateDividers();
+    // WebSocket 연결
+    connect();
+
+    // WebSocket 연결 종료
+    function disconnect() {
+        if (stompClient !== null && stompClient.connected) {
+            stompClient.disconnect(() => {
+                console.log("WebSocket 연결 종료");
+            });
+        }
+    }
+
+    // 페이지 종료 시 연결 해제
+    window.addEventListener("beforeunload", function () {
+        disconnect();
+    });
+</script>
+
+</body>
+</html>

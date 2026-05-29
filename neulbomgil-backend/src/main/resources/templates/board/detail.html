@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>게시글 상세 - 봄길 요양</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+<!-- NAVBAR -->
+<nav>
+    <div th:replace="~{fragments/header :: header}"></div>
+</nav>
+
+<div class="flex-1">
+    <div class="relative max-w-6xl mx-auto px-4 py-6 grid grid-cols-[220px_1fr] gap-5">
+
+        <!-- SIDEBAR -->
+        <aside class="flex flex-col gap-4 bg-bg-soft">
+            <div class="bg-[#a8c5b5] rounded-xl p-5 relative overflow-hidden min-h-[160px]">
+                <p class="text-sm font-bold text-primary-dark mb-2">봄길요양 커뮤니티</p>
+                <p class="text-xs text-gray-600 leading-relaxed">시설 이용 정보와<br/>다양한 소식을<br/>함께 나눠요.</p>
+                <img src="/images/characters/rumi-search.png" alt="마스코트"
+                     class="absolute bottom-0 right-2 w-20"
+                     onerror="this.style.display='none'"/>
+            </div>
+            <a th:href="@{/boards/new}"
+               sec:authorize="isAuthenticated()"
+               class="block w-full py-3 bg-[#2F6F42] hover:bg-primary-dark text-white font-bold rounded-lg text-sm text-center no-underline transition-colors">
+                ✏️ 글쓰기
+            </a>
+            <button sec:authorize="isAnonymous()"
+                    onclick="requireLogin()"
+                    class="w-full py-3 bg-[#2F6F42] hover:bg-primary-dark text-white font-bold rounded-lg text-sm cursor-pointer border-0 transition-colors">
+                ✏️ 글쓰기
+            </button>
+            <div class="border border-gray-200 rounded-xl p-4" style="box-shadow:0 4px 6px rgba(0,0,0,0.22); background: rgba(255,255,255,0.35);">
+                <p class="text-sm font-bold mb-1.5">도움이 필요하신가요?</p>
+                <p class="text-xs text-gray-500 leading-relaxed mb-3">관리자와 1:1 채팅으로<br/>빠르게 문의해보세요.</p>
+                <button class="w-full py-2 bg-[#79a9ba] hover:bg-[#8fb3a0] text-white text-xs font-semibold rounded-md border-0 cursor-pointer transition-colors">
+                    채팅하기
+                </button>
+            </div>
+        </aside>
+
+        <!-- ==================== 메인 ==================== -->
+        <main class="bg-white rounded-xl p-8 shadow-sm flex flex-col gap-8">
+
+            <!-- 상단: 제목 + 목록으로 돌아가기 -->
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-base font-bold text-gray-400">게시글 상세</h2>
+                    <p class="text-xs text-gray-400 mt-1">게시판 &gt; 게시글 상세</p>
+                </div>
+                <a th:href="@{/boards}"
+                   class="flex items-center gap-1.5 px-5 py-2 border border-gray-200 rounded-full text-sm text-gray-600 no-underline hover:border-primary-mid hover:text-primary transition-colors">
+                    &#8249; 목록으로 돌아가기
+                </a>
+            </div>
+
+            <!-- 게시글 제목 -->
+            <h1 class="text-xl font-bold text-gray-800 border-b border-gray-100 pb-4"
+                th:text="${board.title}"></h1>
+
+            <!-- 작성자 정보 + 수정/삭제 버튼 -->
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <span class="font-semibold text-gray-700" th:text="${board.name}"></span>
+                    <span th:if="${board.createdAt != null}"
+                          th:text="${#strings.substring(board.createdAt.toString(), 0, 16).replace('T', ' ')}"></span>
+                    <span class="flex items-center gap-1">
+                        👁 <span th:text="${board.cnt}"></span>
+                    </span>
+                </div>
+
+                <!-- 수정/삭제: 본인 글만 표시 -->
+                <div th:if="${board.userid == currentUserId}" class="flex gap-2">
+                    <button onclick="deleteBoard()"
+                            class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-lg border-0 cursor-pointer transition-colors">
+                        삭제
+                    </button>
+                    <a th:href="@{/boards/{id}/edit(id=${board.boardid})}"
+                       class="px-4 py-1.5 bg-primary hover:bg-primary-dark text-white text-sm rounded-lg no-underline transition-colors">
+                        수정
+                    </a>
+                </div>
+            </div>
+
+            <!-- 게시글 본문 -->
+            <div class="min-h-[200px] text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-b border-gray-100 py-6"
+                 th:text="${board.content}"></div>
+            <div th:if="${board.files != null and !#lists.isEmpty(board.files)}"
+                 class="flex flex-col gap-3 border-b border-gray-100 pb-6">
+                <h4 class="text-sm font-bold text-gray-600">첨부파일</h4>
+                <div th:each="file : ${board.files}">
+
+                    <!-- 이미지 파일 — 바로 미리보기 -->
+                    <div th:if="${#strings.endsWith(file.originalName, '.jpg') or
+                      #strings.endsWith(file.originalName, '.jpeg') or
+                      #strings.endsWith(file.originalName, '.png') or
+                      #strings.endsWith(file.originalName, '.gif') or
+                      #strings.endsWith(file.originalName, '.webp')}">
+                        <img th:src="${'/api/boards/files/' + file.fileid + '/preview'}"
+                             th:alt="${file.originalName}"
+                             class="w-full rounded-xl object-cover max-h-[500px]"/>
+                        <p class="text-xs text-gray-400 mt-1" th:text="${file.originalName}"></p>
+                    </div>
+
+                    <!-- 일반 파일 — 다운로드 링크 -->
+                    <div th:unless="${#strings.endsWith(file.originalName, '.jpg') or
+                          #strings.endsWith(file.originalName, '.jpeg') or
+                          #strings.endsWith(file.originalName, '.png') or
+                          #strings.endsWith(file.originalName, '.gif') or
+                          #strings.endsWith(file.originalName, '.webp')}"
+                         class="flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                        <span class="text-lg">📎</span>
+                        <a th:href="${file.fileUrl}"
+                           th:text="${file.originalName}"
+                           class="text-sm text-primary hover:underline flex-1 truncate"></a>
+                    </div>
+
+                </div>
+            </div>
+            <!-- 좋아요 -->
+            <div class="flex items-center gap-2">
+                <button id="likeBtn"
+                        th:onclick="|toggleLike(${board.boardid})|"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm cursor-pointer transition-colors"
+                        th:classappend="${board.likedByMe} ? 'bg-red-50 border-red-300 text-red-500' : 'bg-white border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400'">
+                    <span th:text="${board.likedByMe} ? '♥' : '♡'">♡</span>
+                    <span id="likeCount" th:text="${board.likeCnt}">0</span>
+                </button>
+            </div>
+
+            <!-- ===== 댓글 영역 ===== -->
+            <div class="flex flex-col gap-4">
+
+                <!-- 댓글 입력 -->
+                <div class="flex gap-2 items-center">
+                    <h3 class="text-base font-bold">댓글</h3>
+                    <span class="text-sm text-gray-400" th:text="${replies.totalElements}"></span>
+                </div>
+                <div class="flex gap-2" sec:authorize="isAuthenticated()">
+                    <input type="text" id="replyInput"
+                           placeholder="댓글을 입력해주세요."
+                           class="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-mid transition-colors"/>
+                    <button onclick="submitReply()"
+                            class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg border-0 cursor-pointer transition-colors">
+                        등록
+                    </button>
+                </div>
+                <div sec:authorize="isAnonymous()"
+                     class="flex gap-2">
+                    <input type="text"
+                           placeholder="댓글을 작성하려면 로그인이 필요합니다."
+                           onclick="requireLogin()"
+                           readonly
+                           class="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 cursor-pointer"/>
+                    <button onclick="requireLogin()"
+                            class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg border-0 cursor-pointer transition-colors">
+                        등록
+                    </button>
+                </div>
+
+                <!-- 댓글 목록 -->
+                <div class="flex flex-col gap-3 mt-2">
+                    <div th:each="reply : ${replies.content}"
+                         th:id="'reply-' + ${reply.replyId}"
+                         class="flex gap-3 items-start py-3 border-b border-gray-100">
+
+                        <!-- 프로필 아이콘 -->
+                        <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+                            <span th:text="${#strings.substring(reply.name, 0, 1)}"></span>
+                        </div>
+
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-semibold text-gray-700" th:text="${reply.name}"></span>
+                                <span class="text-xs text-gray-400"
+                                      th:if="${reply.createdAt != null}"
+                                      th:text="${#strings.substring(reply.createdAt.toString(), 0, 16).replace('T', ' ')}"></span>
+                            </div>
+
+                            <!-- 보기 모드 -->
+                            <div th:id="'reply-view-' + ${reply.replyId}">
+                                <p class="text-sm text-gray-700" th:text="${reply.content}"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 댓글 없음 -->
+                    <p th:if="${replies.content.empty}" class="text-sm text-gray-400 text-center py-6">
+                        아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
+                    </p>
+                </div>
+
+                <!-- 댓글 페이지네이션 -->
+                <div class="flex justify-center items-center gap-1.5 mt-4" th:if="${replies.totalPages > 1}">
+                    <a class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 text-sm no-underline hover:border-primary-mid hover:text-primary transition-colors"
+                       th:classappend="${replies.first} ? 'opacity-30 pointer-events-none'"
+                       th:href="@{/boards/{id}(id=${board.boardid}, replyPage=${replies.number - 1})}">&#8249;</a>
+                    <th:block th:each="i : ${#numbers.sequence(0, replies.totalPages - 1)}">
+                        <a class="w-8 h-8 flex items-center justify-center rounded-full border text-sm no-underline transition-colors"
+                           th:classappend="${i == replies.number} ? 'bg-primary text-white border-primary font-bold' : 'border-gray-200 text-gray-500 hover:border-primary-mid'"
+                           th:href="@{/boards/{id}(id=${board.boardid}, replyPage=${i})}"
+                           th:text="${i + 1}"></a>
+                    </th:block>
+                    <a class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 text-sm no-underline hover:border-primary-mid hover:text-primary transition-colors"
+                       th:classappend="${replies.last} ? 'opacity-30 pointer-events-none'"
+                       th:href="@{/boards/{id}(id=${board.boardid}, replyPage=${replies.number + 1})}">&#8250;</a>
+                </div>
+            </div>
+        </main>
+        <!-- ==================== 메인 끝 ==================== -->
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const boardId = /*[[${board.boardid}]]*/ null;
+
+    function requireLogin() {
+        alert('로그인이 필요한 서비스입니다.');
+        location.href = '/login';
+    }
+
+    // 좋아요 토글
+    function toggleLike(boardId) {
+        fetch(`/api/boards/${boardId}/likes`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => {
+                const btn = document.getElementById('likeBtn');
+                const count = document.getElementById('likeCount');
+                if (data.liked) {
+                    btn.className = btn.className.replace('bg-white border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400', 'bg-red-50 border-red-300 text-red-500');
+                    btn.querySelector('span').textContent = '♥';
+                } else {
+                    btn.className = btn.className.replace('bg-red-50 border-red-300 text-red-500', 'bg-white border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-400');
+                    btn.querySelector('span').textContent = '♡';
+                }
+                count.textContent = parseInt(count.textContent) + (data.liked ? 1 : -1);
+            });
+    }
+    //댓글 등록
+    function submitReply() {
+        const content = document.getElementById('replyInput').value.trim();
+        if (!content) { alert('댓글을 입력해주세요.'); return; }
+        fetch(`/api/boards/${boardId}/replies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',  // ← 변경
+            body: JSON.stringify({ content })
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert('댓글 등록에 실패했습니다.');
+        });
+    }
+
+    // 게시글 삭제
+    function deleteBoard() {
+        if (!confirm('게시글을 삭제하시겠습니까?')) return;
+        fetch(`/api/boards/${boardId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        }).then(res => {
+            if (res.ok) { alert('삭제되었습니다.'); location.href = '/boards'; }
+            else alert('삭제에 실패했습니다.');
+        });
+    }
+</script>
+</body>
+</html>

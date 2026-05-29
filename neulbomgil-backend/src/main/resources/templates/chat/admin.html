@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 채팅</title>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="main-layout">
+
+        <!-- 왼쪽 채팅 목록 -->
+        <section class="sidebar">
+
+            <div class="sidebar-list">
+
+                <button
+                        type="button"
+                        class="chat-room-button"
+                        th:each="room : ${chatRooms}"
+                        th:data-room-id="${room.roomId()}"
+                        th:data-room-name="${room.name()}">
+
+                    <img th:src="@{/images/characters/rumi-face.png}"
+                         class="profile-image"
+                         alt="프로필">
+
+                    <div class="room-content">
+                        <!--                        채팅방 이름과 마지막 메시지 시간을 한줄로-->
+                        <div class="room-header">
+
+                            <div class="room-name"
+                                 th:text="${room.name()}">
+                                사용자
+                            </div>
+
+                            <div class="room-time"
+                                 th:text="${room.lastMessageAt() != null
+                                    ? #temporals.format(room.lastMessageAt(), 'HH:mm')
+                                    : ''}"> 14:35
+                            </div>
+                        </div>
+
+                        <div class="room-last-message"
+                             th:text="${room.lastMessage() != null
+                                ? room.lastMessage()
+                                : '새로운 문의가 있습니다.'}"> 마지막 메시지
+                        </div>
+                    </div>
+
+                    <div th:if="${room.unread()}"
+                         class="unread-dot">
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- 오른쪽 영역 -->
+        <section class="content-area">
+            <!-- 채팅 팝업 -->
+            <section id="chatArea" class="chat-popup">
+
+                <div class="chat-header">
+
+                    <div id="chatTitle" class="chat-title">관리자</div>
+
+                    <button type="button"
+                            class="chat-close-button"
+                            onclick="closeChatRoom()">
+                        ×
+                    </button>
+
+                </div>
+
+                <iframe id="chatFrame"
+                        class="chat-frame">
+                </iframe>
+            </section>
+
+
+            <!-- 사용자 관리 -->
+            <div class="user-container">
+
+                <div class="user-header">
+
+                    <h2 class="user-title">
+                        사용자 관리
+                    </h2>
+
+                    <p class="user-description">
+                        회원 정보를 조회하고 관리할 수 있습니다.
+                    </p>
+
+                </div>
+
+
+                <!-- 사용자 필터 -->
+                <div class="user-manage">
+
+                    <button
+                            type="button"
+                            class="manage-button"
+                            th:classappend="${type == 'all'} ? ' active' : ''"
+                            onclick="location.href='/admin/users'">전체 사용자
+                        (<span th:text="${allUserCount}">0</span>)
+                    </button>
+
+                    <!-- th:classappend="${type == 'all'} ? ' active' : ''"
+
+                    현재 페이지의 type 값이 all이면 class에 active를 추가해.
+                    class="filter-button active"-->
+
+
+
+                    <button
+                            type="button"
+                            class="manage-button"
+                            th:classappend="${type == 'deleted'} ? ' active' : ''"
+                            onclick="location.href='/admin/users/deleted'">
+                        탈퇴 사용자
+                        (<span th:text="${deletedUserCount}">0</span>)
+
+                    </button>
+
+                </div>
+
+
+                <!-- 사용자 테이블 -->
+                <div class="user-table">
+
+                    <div class="table-header">
+
+                        <div>번호</div>
+                        <div>이름(별명)</div>
+                        <div>이메일</div>
+                        <div>가입일</div>
+                        <div>상태</div>
+                        <div>게시글</div>
+                        <div>댓글</div>
+                        <div>관리</div>
+
+                    </div>
+
+                    <div
+                            th:each="user : ${users}"
+                            class="table-row">
+
+                        <div th:text="${user.userId()}"></div>
+
+                        <div th:text="${user.name()} ?: '-'">
+                        </div>
+                        <!--   <div th:text="${user.email()} ?: '-'">
+                                                    email@test.com
+                                                </div>-->
+                        <div th:text="${user.email()} ?: '-'"></div>
+
+                        <div th:text="${user.createdAt()} ?: '-'"></div>
+
+                        <div>
+                            <span th:if="${user.status().name() == 'ACTIVE'}"
+                                  class="status-active">활성</span>
+
+                            <span th:if="${user.status().name() == 'REMOVED'}"
+                                  class="status-removed">탈퇴
+                            </span>
+                            <span th:if="${user.status().name() == 'INACTIVE'}"
+                                  class="status-inactive">인증대기
+                            </span>
+                        </div>
+
+                        <div th:text="${user.boardCount() != null ? user.boardCount() : 0}">
+                        </div>
+
+                        <div th:text="${user.replyCount() != null ? user.replyCount() : 0}">
+                        </div>
+
+                        <div>
+
+                            <form
+                                    th:action="@{/admin/users/{userId}/status(userId=${user.userId()})}"
+                                    method="post">
+
+                                <button
+                                        type="submit"
+                                        class="status-button">
+                                    상태변경
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+<script>
+
+    const chatArea = document.getElementById("chatArea");
+    <!-- iframe 채팅 팝업 -->
+    const chatFrame = document.getElementById("chatFrame");
+    <!-- 채팅 제목 -->
+    const chatTitle = document.getElementById("chatTitle");
+
+    const isAdmin = [[${#authorization.expression('hasAuthority(''ADMIN'')')}]];
+
+
+    <!-- 버튼 클릭 -->
+    const roomButtons = document.querySelectorAll(".chat-room-button");
+
+    roomButtons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            if (!isAdmin) {
+
+                alert("관리자만 접근할 수 있습니다.");
+
+                return;
+            }
+
+            openChatRoom(button);
+
+        });
+
+    });
+
+    function openChatRoom(element) {
+
+        const roomId = element.dataset.roomId;
+        const roomName = element.dataset.roomName;
+
+        chatArea.classList.add("active");
+
+        chatTitle.textContent = roomName;
+
+
+
+
+        chatFrame.src = "/chatrooms/" + roomId + "/message";
+
+        const unreadDot = element.querySelector(".unread-dot");
+
+        if (unreadDot) {
+            unreadDot.style.display = "none";
+        }
+    }
+
+    function closeChatRoom() {
+
+        chatFrame.src = "about:blank";
+
+
+
+        chatArea.classList.remove("active");
+    }
+
+</script>
+
+</body>
+</html>

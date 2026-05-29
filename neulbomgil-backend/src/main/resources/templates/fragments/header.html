@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block th:fragment="header">
+
+  <header class="bg-white flex items-center justify-between"
+          style="font-family:'Eulyoo1945', serif;
+               height:58px;
+               padding:0 28px;
+               box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+
+    <!-- 왼쪽 -->
+    <th:block sec:authorize="hasAuthority('ADMIN')">
+      <a th:href="@{/admin}" class="flex items-center" style="gap:10px; text-decoration:none;">
+        <img th:src="@{/images/icons/main-icon.png}" alt="로고"
+             class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
+        <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
+      </a>
+    </th:block>
+    <th:block sec:authorize="hasAuthority('USER') or isAnonymous()">
+      <a th:href="@{/}" class="flex items-center" style="gap:10px; text-decoration:none;">
+        <img th:src="@{/images/icons/main-icon.png}" alt="로고"
+             class="rounded-full" style="width:32px; height:32px; object-fit:cover;">
+        <span class="font-bold" style="font-size:20px; color:#222;">봄길요양</span>
+      </a>
+    </th:block>
+
+    <!-- 가운데 메뉴 -->
+    <nav class="flex items-center" style="gap:50px;" sec:authorize="hasAuthority('USER') or isAnonymous()">
+      <a href="/map" class="font-bold" style="text-decoration:none; color:#222;">지도</a>
+      <a th:href="@{/caregrade}" class="font-bold" style="text-decoration:none; color:#222;">장기요양등급 확인</a>
+      <a href="/boards" class="font-bold" style="text-decoration:none; color:#222;">게시판</a>
+    </nav>
+
+    <!-- 오른쪽 -->
+    <div class="flex items-center" style="gap:12px;">
+
+      <!-- 비로그인 -->
+      <th:block sec:authorize="isAnonymous()">
+        <a href="/login" class="bg-primary text-white font-bold rounded-xl"
+           style="padding:10px 18px; text-decoration:none;">로그인</a>
+        <a href="/signup" class="bg-primary text-white font-bold rounded-xl"
+           style="padding:10px 18px; text-decoration:none;">회원가입</a>
+      </th:block>
+
+      <!-- 일반 사용자 -->
+      <th:block sec:authorize="hasAuthority('USER')">
+        <a href="/mypage" class="bg-primary text-white font-bold rounded-xl"
+           style="padding:10px 18px; text-decoration:none;">마이페이지</a>
+        <a href="/logout" class="bg-primary text-white font-bold rounded-xl"
+           style="padding:10px 18px; text-decoration:none;">로그아웃</a>
+      </th:block>
+
+      <!-- 관리자 -->
+      <th:block sec:authorize="hasAuthority('ADMIN')">
+        <a href="/logout" class="bg-primary text-white font-bold rounded-xl"
+           style="padding:10px 18px; text-decoration:none;">로그아웃</a>
+      </th:block>
+
+    </div>
+
+  </header>
+
+</th:block>
+
+</html>
