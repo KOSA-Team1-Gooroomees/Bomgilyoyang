@@ -78,7 +78,43 @@
                               class="px-3.5 py-3 border border-gray-200 rounded-lg text-sm w-full resize-y leading-relaxed focus:outline-none focus:border-primary-mid transition-colors"
                               th:text="${board.content}"></textarea>
                 </div>
-
+                <!-- 파일 업로드 -->
+                <div class="grid grid-cols-[80px_1fr] items-start">
+                    <label class="text-base font-bold pt-2.5">첨부파일</label>
+                    <div class="flex flex-col gap-3">
+                        <div th:if="${board.files != null and !#lists.isEmpty(board.files)}"
+                             class="flex flex-col gap-2">
+                            <p class="text-xs text-gray-400 font-semibold">현재 첨부파일</p>
+                            <div th:each="file : ${board.files}"
+                                 th:id="'existing-' + ${file.fileid}"
+                                 class="flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                                <span class="text-2xl flex-shrink-0">📎</span>
+                                <span class="text-xs text-gray-700 flex-1 truncate" th:text="${file.originalName}"></span>
+                                <button type="button"
+                                        th:data-file-id="${file.fileid}"
+                                        onclick="deleteExistingFile(this.dataset.fileId)"
+                                        class="text-gray-300 hover:text-red-400 text-lg border-0 bg-transparent cursor-pointer">✕</button>
+                            </div>
+                        </div>
+                        <div id="dropZone"
+                             class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer bg-gray-50 hover:border-primary-mid hover:bg-primary-light transition-colors"
+                             onclick="document.getElementById('fileInput').click()"
+                             ondragover="handleDragOver(event)"
+                             ondragleave="handleDragLeave(event)"
+                             ondrop="handleDrop(event)">
+                            <div class="text-3xl mb-2">📎</div>
+                            <p class="text-sm text-gray-500">
+                                <span class="text-primary font-semibold">클릭</span>하거나 파일을 드래그해서 업로드하세요
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">이미지(jpg, png, gif), PDF, Word, Excel 등 · 파일당 최대 10MB · 최대 5개</p>
+                        </div>
+                        <input type="file" id="fileInput" multiple
+                               accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.hwp"
+                               class="hidden"
+                               onchange="handleFileSelect(event)"/>
+                        <div id="filePreviewList" class="flex flex-col gap-2 mt-3"></div>
+                    </div>
+                </div>
                 <!-- 버튼 -->
                 <div class="flex justify-center gap-3 mt-2">
                     <button type="button"
@@ -100,8 +136,69 @@
 
 <script th:inline="javascript">
     const boardId = /*[[${board.boardid}]]*/ null;
-    const token = localStorage.getItem('token');
 
+    let selectedFiles = [];
+
+    function handleFileSelect(e) { addFiles(Array.from(e.target.files)); e.target.value = ''; }
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('dropZone').classList.add('border-primary-mid', 'bg-primary-light');
+    }
+    function handleDragLeave() {
+        document.getElementById('dropZone').classList.remove('border-primary-mid', 'bg-primary-light');
+    }
+    function handleDrop(e) { e.preventDefault(); handleDragLeave(); addFiles(Array.from(e.dataTransfer.files)); }
+
+    function addFiles(newFiles) {
+        for (const file of newFiles) {
+            if (selectedFiles.length >= 5) { alert('파일은 최대 5개까지 첨부할 수 있습니다.'); break; }
+            if (file.size > 10 * 1024 * 1024) { alert(`${file.name}: 파일 크기가 10MB를 초과합니다.`); continue; }
+            selectedFiles.push(file);
+        }
+        renderFilePreview();
+    }
+
+    function renderFilePreview() {
+        const list = document.getElementById('filePreviewList');
+        list.innerHTML = '';
+        selectedFiles.forEach((file, idx) => {
+            const isImage = file.type.startsWith('image/');
+            const item = document.createElement('div');
+            item.className = 'flex items-center gap-2.5 px-3 py-2 bg-white border border-gray-200 rounded-lg';
+            const thumb = isImage
+                ? `<img src="${URL.createObjectURL(file)}" class="w-10 h-10 rounded-md object-cover flex-shrink-0"/>`
+                : `<div class="w-10 h-10 rounded-md bg-primary-light flex items-center justify-center text-xl flex-shrink-0">${getFileIcon(file.name)}</div>`;
+            item.innerHTML = `
+            ${thumb}
+            <span class="text-xs text-gray-700 flex-1 truncate">${file.name}</span>
+            <span class="text-xs text-gray-400">${formatSize(file.size)}</span>
+            <button onclick="removeFile(${idx})" class="text-gray-300 hover:text-red-400 text-lg border-0 bg-transparent cursor-pointer">✕</button>
+        `;
+            list.appendChild(item);
+        });
+    }
+
+    function removeFile(idx) { selectedFiles.splice(idx, 1); renderFilePreview(); }
+
+    function formatSize(b) {
+        if (b < 1024) return b + 'B';
+        if (b < 1024 * 1024) return (b / 1024).toFixed(1) + 'KB';
+        return (b / (1024 * 1024)).toFixed(1) + 'MB';
+    }
+    function getFileIcon(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        return { pdf:'📄', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', ppt:'📑', pptx:'📑', zip:'🗜', hwp:'📃', txt:'📋' }[ext] || '📎';
+    }
+    function deleteExistingFile(fileId) {
+        if (!confirm('첨부파일을 삭제하시겠습니까?')) return;
+        fetch(`/api/boards/files/${fileId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        }).then(res => {
+            if (res.ok) document.getElementById(`existing-${fileId}`).remove();
+            else alert('파일 삭제에 실패했습니다.');
+        });
+    }
     function submitEdit() {
         const title   = document.getElementById('title').value.trim();
         const content = document.getElementById('content').value.trim();
@@ -112,13 +209,14 @@
         btn.disabled = true;
         btn.textContent = '수정 중...';
 
+        const formData = new FormData();
+        formData.append('data', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
+        selectedFiles.forEach(f => formData.append('files', f));
+
         fetch(`/api/boards/${boardId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                credentials: 'include',
-            },
-            body: JSON.stringify({ title, content })
+            credentials: 'include',
+            body: formData
         })
             .then(res => {
                 if (res.ok) {
