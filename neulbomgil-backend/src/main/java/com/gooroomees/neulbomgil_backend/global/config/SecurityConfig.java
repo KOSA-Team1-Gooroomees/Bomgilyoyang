@@ -30,12 +30,14 @@ public class SecurityConfig {
                         .frameOptions(frame -> frame.disable())
                 )
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                         .requestMatchers("/", "/login", "/register", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/map/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // websocket연결
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/email/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/email/**").permitAll()
+                        .requestMatchers("/api/boards/**").permitAll()
+                        .requestMatchers("/boards/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
