@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/map").permitAll()
                         .requestMatchers("/api/map/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // websocket연결
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/caregrade/**").permitAll()
                         .requestMatchers("/signup").permitAll()
                         .requestMatchers("/email/**").permitAll()
