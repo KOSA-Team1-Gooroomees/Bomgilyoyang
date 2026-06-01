@@ -206,8 +206,14 @@
 
                 // Call the API endpoint using fetch
                 fetch(`/api/auth/check-email?email=${encodeURIComponent(emailVal)}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(isDuplicated => {
+                        console.log(isDuplicated);
                         emailMsg.classList.remove('hidden');
                         if (isDuplicated) {
                             emailMsg.textContent = '이미 사용 중인 이메일입니다.';
