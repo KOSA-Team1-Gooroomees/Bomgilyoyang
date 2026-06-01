@@ -37,6 +37,11 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                )
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/", "/login", "/register", "/login/oauth2/**").permitAll()
                         .requestMatchers("/map").permitAll()
