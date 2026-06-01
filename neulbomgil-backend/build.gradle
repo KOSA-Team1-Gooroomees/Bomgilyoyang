@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.6'
@@ -68,10 +70,10 @@ tasks.register('buildTailwind', Exec) {
     group = 'build'
     description = 'Builds Tailwind CSS v4'
 
-    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine 'npx.cmd', '@tailwindcss/cli', '-i', './src/main/resources/static/css/input.css', '-o', './src/main/resources/static/css/main.css'
     } else {
-        commandLine 'npx', '@tailwindcss/cli', '-i', './src/main/resources/static/css/input.css', '-o', './src/main/resources/static/css/main.css'
+        commandLine 'sh', '-c', 'npx @tailwindcss/cli -i ./src/main/resources/static/css/input.css -o ./src/main/resources/static/css/main.css'
     }
 }
 
